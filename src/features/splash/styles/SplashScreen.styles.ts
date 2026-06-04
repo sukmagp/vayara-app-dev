@@ -1,0 +1,90 @@
+import { StyleSheet } from "react-native";
+import { colors, radius, spacing } from "@/theme";
+
+export const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: spacing.xl,
+  },
+  decorOne: {
+    position: "absolute",
+    width: 220,
+    height: 220,
+    borderRadius: radius.full,
+    backgroundColor: "rgba(251,187,63,0.25)",
+    top: -70,
+    right: -60,
+  },
+  decorTwo: {
+    position: "absolute",
+    width: 260,
+    height: 260,
+    borderRadius: radius.full,
+    backgroundColor: "rgba(0,110,109,0.12)",
+    bottom: -80,
+    left: -90,
+  },
+  logoCard: {
+    width: 136,
+    height: 136,
+    borderRadius: radius.xl,
+    backgroundColor: colors.white,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: colors.shadow,
+    shadowOpacity: 0.16,
+    shadowRadius: 22,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 8,
+  },
+  logo: {
+    width: 104,
+    height: 104,
+  },
+  title: {
+    marginTop: spacing.xl,
+    color: colors.primary,
+    fontSize: 38,
+    fontWeight: "900",
+    letterSpacing: 0.5,
+  },
+  subtitle: {
+    marginTop: 6,
+    color: colors.textMuted,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  loadingWrap: {
+    position: "absolute",
+    left: spacing.xl,
+    right: spacing.xl,
+    bottom: 56,
+    alignItems: "center",
+    gap: spacing.md,
+  },
+  loadingTrack: {
+    width: "64%",
+    height: 7,
+    borderRadius: radius.full,
+    backgroundColor: colors.primaryMuted,
+    overflow: "hidden",
+  },
+  loadingFill: {
+    width: "72%",
+    height: "100%",
+    borderRadius: radius.full,
+    backgroundColor: colors.primary,
+  },
+  secureRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  secureText: {
+    color: colors.primary,
+    fontSize: 12,
+    fontWeight: "800",
+  },
+});
