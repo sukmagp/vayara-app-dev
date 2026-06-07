@@ -6,4 +6,6 @@ export const appImages = Object.freeze({
   authBackground: require("../../assets/images/auth-bg.png"),
   otpBackground: require("../../assets/images/otp-bg.png"),
   homeHero: require("../../assets/images/home-hero.png"),
+  loginIllustration: require("../../assets/images/login-vector.png"),
+  registerIllustration: require("../../assets/images/register-vector.jpg"),
 });

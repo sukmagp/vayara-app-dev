@@ -1,3 +1,5 @@
 import { OtpScreen } from "@/features/auth";
 
-export default OtpScreen;
+export default function OtpRoute() {
+  return <OtpScreen />;
+}

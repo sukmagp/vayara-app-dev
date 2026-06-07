@@ -2,33 +2,77 @@ export type AuthUser = {
   id: string;
   fullName: string;
   email: string;
+  username?: string | null;
   avatarUrl?: string | null;
 };
 
 export type LoginPayload = {
-  email: string;
+  identifier: string;
   password: string;
+};
+
+export type GoogleLoginPayload = {
+  idToken: string;
 };
 
 export type RegisterPayload = {
+  first_name: string;
+  last_name: string;
+  place_birth: string;
+  birthdate: string;
+  age: string;
+
+  job_type_id: number;
+  job_type_name: string;
+
+  province_id: number;
+  city_id: number;
+  kecamatan_id: number;
+  kelurahan_id: number;
+
+  address: string;
+  hobi: string;
+
+  role_id: number;
+
   email: string;
+  username: string;
   password: string;
-  confirmPassword: string;
+  conf_password: string;
+
+  point_users: string;
+  is_pj: boolean;
+  name_jabatan: string;
 };
 
 export type VerifyOtpPayload = {
-  email: string;
+  identifier: string;
   otp: string;
 };
 
+export type VerifyOtpPurpose = "login" | "register";
+
+export type AuthOtpTicket = {
+  identifier: string;
+  email?: string;
+  message: string;
+  purpose: VerifyOtpPurpose;
+};
+
 export type AuthResponse = {
-  accessToken: string;
-  refreshToken?: string;
+  userId: string;
   user: AuthUser;
 };
 
+export type VerifyOtpResult = {
+  verified: boolean;
+  message: string;
+  session: AuthResponse | null;
+};
+
 export type AuthState = {
+  userId: string | null;
   user: AuthUser | null;
-  accessToken: string | null;
   isAuthenticated: boolean;
+  isBootstrapped: boolean;
 };

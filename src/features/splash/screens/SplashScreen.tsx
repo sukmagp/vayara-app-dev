@@ -1,10 +1,10 @@
-import { useEffect } from "react";
-import { Image, Text, View } from "react-native";
-import { router } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
 import { appImages } from "@/constants/assets";
 import { colors } from "@/theme";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
+import { useEffect } from "react";
+import { Image, Text, View } from "react-native";
 import { styles } from "../styles/SplashScreen.styles";
 
 export function SplashScreen() {
@@ -29,9 +29,9 @@ export function SplashScreen() {
       <Text style={styles.subtitle}>Your next journey starts here</Text>
 
       <View style={styles.loadingWrap}>
-        <View style={styles.loadingTrack}>
+        {/* <View style={styles.loadingTrack}>
           <View style={styles.loadingFill} />
-        </View>
+        </View> */}
 
         <View style={styles.secureRow}>
           <Ionicons name="shield-checkmark" size={16} color={colors.primary} />

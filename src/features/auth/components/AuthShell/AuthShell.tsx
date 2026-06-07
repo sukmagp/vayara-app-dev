@@ -1,8 +1,15 @@
-import { ReactNode } from "react";
-import { Image, ImageBackground, KeyboardAvoidingView, Platform, ScrollView, Text, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { appImages } from "@/constants/assets";
-import { colors } from "@/theme";
+import type { ReactNode } from "react";
+import {
+  Image,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
+
 import { styles } from "./AuthShell.styles";
 
 type AuthShellProps = {
@@ -17,20 +24,27 @@ export function AuthShell({ title, subtitle, children }: AuthShellProps) {
       style={styles.root}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <ImageBackground source={appImages.authBackground} resizeMode="cover" style={styles.hero}>
-        <LinearGradient colors={["rgba(255,248,236,0.1)", colors.background]} style={styles.heroOverlay} />
+      <ImageBackground
+        source={appImages.loginIllustration}
+        resizeMode="cover"
+        style={styles.hero}
+        imageStyle={styles.heroImage}
+      >
+        <View style={styles.heroOverlay} />
       </ImageBackground>
 
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.card}>
           <Image source={appImages.logo} resizeMode="contain" style={styles.logo} />
 
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.subtitle}>{subtitle}</Text>
+          <View style={styles.header}>
+            <Text style={styles.title}>{title}</Text>
+            <Text style={styles.subtitle}>{subtitle}</Text>
+          </View>
 
           <View style={styles.form}>{children}</View>
         </View>

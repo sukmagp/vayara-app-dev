@@ -1,6 +1,7 @@
 export type ApiResponse<T> = {
-  success: boolean;
-  message: string;
+  success?: boolean;
+  statusCode?: number;
+  message?: string;
   data: T;
 };
 
@@ -13,6 +14,9 @@ export type ApiListResponse<T> = {
 };
 
 export type ApiErrorPayload = {
+  success?: boolean;
+  statusCode?: number;
   message?: string;
-  errors?: Record<string, string[]>;
+  error?: string;
+  errors?: Record<string, string[] | string>;
 };

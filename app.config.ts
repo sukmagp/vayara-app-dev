@@ -2,6 +2,10 @@
 
 import type { ExpoConfig } from "expo/config";
 
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_BASE_URL ??
+  "https://backend-super-apps-travel-96zp.vercel.app/api/v1";
+
 const config: ExpoConfig = {
   name: process.env.EXPO_PUBLIC_APP_NAME ?? "Vayara",
   slug: "vayara-app",
@@ -14,9 +18,12 @@ const config: ExpoConfig = {
 
   ios: {
     supportsTablet: true,
+    bundleIdentifier: "com.vayara.travel",
   },
 
   android: {
+    package: "com.vayara.travel",
+    versionCode: 1,
     adaptiveIcon: {
       foregroundImage: "./assets/images/adaptive-icon.png",
       backgroundColor: "#FFF8EC",
@@ -34,14 +41,27 @@ const config: ExpoConfig = {
         imageWidth: 180,
       },
     ],
+
+    // Aktifkan lagi nanti kalau Google Auth sudah ready.
+    // [
+    //   "@react-native-google-signin/google-signin",
+    //   {
+    //     iosUrlScheme: "com.googleusercontent.apps.REVERSED_IOS_CLIENT_ID",
+    //   },
+    // ],
   ],
 
   extra: {
     appName: process.env.EXPO_PUBLIC_APP_NAME ?? "Vayara",
     appEnv: process.env.EXPO_PUBLIC_APP_ENV ?? "development",
     apiBaseUrl:
-      process.env.EXPO_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api",
+      process.env.EXPO_PUBLIC_API_BASE_URL ??
+      "https://backend-super-apps-travel-96zp.vercel.app/api/v1",
     apiTimeoutMs: Number(process.env.EXPO_PUBLIC_API_TIMEOUT_MS ?? 30000),
+
+    eas: {
+      projectId: "6f8b4f52-f6c2-4a9b-9c3d-bb4d633f1994",
+    },
   },
 };
 

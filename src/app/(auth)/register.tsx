@@ -1,3 +1,5 @@
 import { RegisterScreen } from "@/features/auth";
 
-export default RegisterScreen;
+export default function RegisterRoute() {
+  return <RegisterScreen />;
+}

@@ -14,7 +14,16 @@
     "ignoreDeprecations": "6.0"
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx"
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "dist",
+    "android",
+    "ios"
   ]
 }
