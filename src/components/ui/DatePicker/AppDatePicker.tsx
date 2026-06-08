@@ -1,9 +1,24 @@
+import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker, {
-    type DateTimePickerEvent,
+  type DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import { useMemo, useState } from "react";
-import { Platform, Pressable, Text, View } from "react-native";
-import { datePickerStyles } from "./AppDatePicker.styles";
+import type { ComponentProps } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Keyboard,
+  Modal,
+  Platform,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
+
+import {
+  authDatePickerFieldStyles,
+  datePickerStyles,
+} from "./AppDatePicker.styles";
+
+type IconName = ComponentProps<typeof Ionicons>["name"];
 
 type AppDatePickerProps = {
   label?: string;
@@ -14,6 +29,18 @@ type AppDatePickerProps = {
   minimumDate?: Date;
   maximumDate?: Date;
   onChange: (value: string) => void;
+  onBlur?: () => void;
+};
+
+type AuthDatePickerFieldProps = {
+  value?: string;
+  placeholder?: string;
+  icon?: IconName;
+  error?: string;
+  disabled?: boolean;
+  minimumDate?: Date;
+  maximumDate?: Date;
+  onChange?: (value: string) => void;
   onBlur?: () => void;
 };
 
@@ -35,7 +62,9 @@ const MONTHS = [
 const pad = (value: number) => String(value).padStart(2, "0");
 
 export const toDateInputValue = (date: Date) => {
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+    date.getDate(),
+  )}`;
 };
 
 export const parseDateInputValue = (value?: string) => {
@@ -81,7 +110,19 @@ export const calculateAgeFromBirthdate = (birthdate?: string) => {
 const formatDisplayDate = (date: Date | null) => {
   if (!date) return "";
 
-  return `${pad(date.getDate())} ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+  return `${pad(date.getDate())} ${
+    MONTHS[date.getMonth()]
+  } ${date.getFullYear()}`;
+};
+
+const formatAuthDateLabel = (value?: string) => {
+  const date = parseDateInputValue(value);
+
+  if (!date) return "";
+
+  return `${pad(date.getDate())}/${pad(
+    date.getMonth() + 1,
+  )}/${date.getFullYear()}`;
 };
 
 export function AppDatePicker({
@@ -104,6 +145,7 @@ export function AppDatePicker({
 
   const openPicker = () => {
     if (disabled) return;
+    Keyboard.dismiss();
     setIsOpen(true);
   };
 
@@ -144,8 +186,8 @@ export function AppDatePicker({
         onPress={openPicker}
         style={[
           datePickerStyles.control,
-          disabled && datePickerStyles.controlDisabled,
-          error && datePickerStyles.controlError,
+          disabled ? datePickerStyles.controlDisabled : null,
+          error ? datePickerStyles.controlError : null,
         ]}
       >
         <View style={datePickerStyles.iconWrap}>
@@ -156,7 +198,7 @@ export function AppDatePicker({
           numberOfLines={1}
           style={[
             datePickerStyles.value,
-            !displayValue && datePickerStyles.placeholder,
+            !displayValue ? datePickerStyles.placeholder : null,
           ]}
         >
           {displayValue || placeholder}
@@ -175,7 +217,10 @@ export function AppDatePicker({
           />
 
           {Platform.OS === "ios" ? (
-            <Pressable onPress={closePicker} style={datePickerStyles.doneButton}>
+            <Pressable
+              onPress={closePicker}
+              style={datePickerStyles.doneButton}
+            >
               <Text style={datePickerStyles.doneText}>Selesai</Text>
             </Pressable>
           ) : null}
@@ -187,3 +232,182 @@ export function AppDatePicker({
   );
 }
 
+export function AuthDatePickerField({
+  value,
+  placeholder = "Pilih tanggal",
+  icon = "calendar-outline",
+  error,
+  disabled = false,
+  minimumDate,
+  maximumDate,
+  onChange,
+  onBlur,
+}: AuthDatePickerFieldProps) {
+  const selectedDate = useMemo(() => parseDateInputValue(value), [value]);
+
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const [draftDate, setDraftDate] = useState<Date>(
+    selectedDate || maximumDate || new Date(),
+  );
+
+  useEffect(() => {
+    if (selectedDate) {
+      setDraftDate(selectedDate);
+    }
+  }, [selectedDate]);
+
+  const displayText = useMemo(() => formatAuthDateLabel(value), [value]);
+
+  const closePicker = useCallback(() => {
+    setPickerVisible(false);
+    onBlur?.();
+  }, [onBlur]);
+
+  const openPicker = useCallback(() => {
+    if (disabled) return;
+
+    Keyboard.dismiss();
+    setPickerVisible(true);
+  }, [disabled]);
+
+  const commitDate = useCallback(
+    (date: Date) => {
+      onChange?.(toDateInputValue(date));
+      onBlur?.();
+    },
+    [onBlur, onChange],
+  );
+
+  const handleAndroidChange = useCallback(
+    (event: DateTimePickerEvent, selected?: Date) => {
+      setPickerVisible(false);
+
+      if (event.type === "dismissed" || !selected) {
+        onBlur?.();
+        return;
+      }
+
+      setDraftDate(selected);
+      commitDate(selected);
+    },
+    [commitDate, onBlur],
+  );
+
+  const handleIosChange = useCallback(
+    (_event: DateTimePickerEvent, selected?: Date) => {
+      if (!selected) return;
+      setDraftDate(selected);
+    },
+    [],
+  );
+
+  const handleIosConfirm = useCallback(() => {
+    commitDate(draftDate);
+    setPickerVisible(false);
+  }, [commitDate, draftDate]);
+
+  return (
+    <View style={authDatePickerFieldStyles.wrapper}>
+      <Pressable
+        accessibilityRole="button"
+        disabled={disabled}
+        onPress={openPicker}
+        style={({ pressed }) => [
+          authDatePickerFieldStyles.field,
+          error ? authDatePickerFieldStyles.fieldError : null,
+          disabled ? authDatePickerFieldStyles.fieldDisabled : null,
+          pressed && !disabled
+            ? authDatePickerFieldStyles.fieldPressed
+            : null,
+        ]}
+      >
+        <View style={authDatePickerFieldStyles.iconWrap}>
+          <Ionicons
+            name={icon}
+            size={24}
+            style={authDatePickerFieldStyles.icon}
+          />
+        </View>
+
+        <Text
+          numberOfLines={1}
+          style={[
+            authDatePickerFieldStyles.text,
+            !displayText ? authDatePickerFieldStyles.placeholder : null,
+          ]}
+        >
+          {displayText || placeholder}
+        </Text>
+      </Pressable>
+
+      {error ? (
+        <Text style={authDatePickerFieldStyles.errorText}>{error}</Text>
+      ) : null}
+
+      {Platform.OS === "android" && pickerVisible ? (
+        <DateTimePicker
+          value={draftDate}
+          mode="date"
+          display="default"
+          minimumDate={minimumDate}
+          maximumDate={maximumDate}
+          onChange={handleAndroidChange}
+        />
+      ) : null}
+
+      {Platform.OS === "ios" ? (
+        <Modal
+          transparent
+          visible={pickerVisible}
+          animationType="fade"
+          onRequestClose={closePicker}
+        >
+          <Pressable
+            style={authDatePickerFieldStyles.modalBackdrop}
+            onPress={closePicker}
+          >
+            <Pressable style={authDatePickerFieldStyles.modalCard}>
+              <View style={authDatePickerFieldStyles.modalHeader}>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={closePicker}
+                  hitSlop={10}
+                >
+                  <Text style={authDatePickerFieldStyles.modalCancelText}>
+                    Batal
+                  </Text>
+                </Pressable>
+
+                <Text style={authDatePickerFieldStyles.modalTitle}>
+                  Pilih tanggal
+                </Text>
+
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={handleIosConfirm}
+                  hitSlop={10}
+                >
+                  <Text style={authDatePickerFieldStyles.modalDoneText}>
+                    Selesai
+                  </Text>
+                </Pressable>
+              </View>
+
+              {pickerVisible ? (
+                <DateTimePicker
+                  value={draftDate}
+                  mode="date"
+                  display="spinner"
+                  minimumDate={minimumDate}
+                  maximumDate={maximumDate}
+                  onChange={handleIosChange}
+                  style={authDatePickerFieldStyles.iosPicker}
+                />
+              ) : null}
+            </Pressable>
+          </Pressable>
+        </Modal>
+      ) : null}
+    </View>
+  );
+}

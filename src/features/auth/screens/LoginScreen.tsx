@@ -2,13 +2,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Platform, Pressable, Text, View } from "react-native";
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 
 import { AppButton } from "@/components/ui/AppButton";
 import { AppInput } from "@/components/ui/AppInput";
+import { AuthComingSoonModal } from "@/components/ui/ComingSoon/AuthComingSoonModal";
 import { getSafeErrorMessage } from "@/utils/error.utils";
 
-import { AuthComingSoonModal } from "@/components/ui/ComingSoon/AuthComingSoonModal";
 import { AuthShell } from "../components/AuthShell";
 import { SocialAuthButton } from "../components/SocialAuthButton";
 import { useAuth } from "../hooks/useAuth";
@@ -50,6 +59,12 @@ const COMING_SOON_CONTENT: Record<
   },
 };
 
+const KEYBOARD_VERTICAL_OFFSET = Platform.select({
+  ios: 24,
+  android: 0,
+  default: 0,
+});
+
 export function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] =
@@ -83,141 +98,173 @@ export function LoginScreen() {
   }, []);
 
   const handleForgotPassword = useCallback(() => {
+    if (loginLoading) return;
     setComingSoonFeature("forgot-password");
-  }, []);
+  }, [loginLoading]);
 
   const handleGoogleLogin = useCallback(() => {
+    if (loginLoading) return;
     setComingSoonFeature("google-login");
-  }, []);
+  }, [loginLoading]);
 
   const handleAppleLogin = useCallback(() => {
+    if (loginLoading) return;
     setComingSoonFeature("apple-login");
-  }, []);
+  }, [loginLoading]);
 
   const handleRegister = useCallback(() => {
+    if (loginLoading) return;
     router.push("/(auth)/register");
-  }, []);
+  }, [loginLoading]);
 
   const onSubmit = useCallback(
     async (values: LoginSchema) => {
       try {
         await login({
-          identifier: values.email.trim(),
+          identifier: values.email.trim().toLowerCase(),
           password: values.password,
         });
       } catch {
-        // Error ditampilkan dari loginError.
+        // Error aman ditampilkan melalui loginError.
       }
     },
     [login],
   );
-  
+
+  const handleLoginPress = useMemo(
+    () => handleSubmit(onSubmit),
+    [handleSubmit, onSubmit],
+  );
+
   return (
     <>
-      <AuthShell
-        title="Selamat Datang!"
-        subtitle="Masukkan email dan password untuk memulai cerita perjalanan anda."
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingView}
+        behavior={isIOS ? "padding" : "height"}
+        keyboardVerticalOffset={KEYBOARD_VERTICAL_OFFSET}
       >
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { value, onChange, onBlur } }) => (
-            <AppInput
-              icon="mail"
-              placeholder="Email"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              keyboardType="email-address"
-              autoComplete="email"
-              textContentType="emailAddress"
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!loginLoading}
-              error={errors.email?.message}
-            />
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="password"
-          render={({ field: { value, onChange, onBlur } }) => (
-            <AppInput
-              icon="lock-closed"
-              placeholder="Password"
-              value={value}
-              onChangeText={onChange}
-              onBlur={onBlur}
-              secureTextEntry={!showPassword}
-              textContentType="password"
-              autoComplete="password"
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!loginLoading}
-              secureToggle
-              secureVisible={showPassword}
-              onToggleSecure={handleTogglePassword}
-              error={errors.password?.message}
-            />
-          )}
-        />
-
-        <Pressable
-          accessibilityRole="button"
-          disabled={loginLoading}
-          onPress={handleForgotPassword}
-          hitSlop={10}
-          style={styles.forgotButton}
+        <TouchableWithoutFeedback
+          accessible={false}
+          onPress={Keyboard.dismiss}
         >
-          <Text style={styles.forgotText}>Lupa password?</Text>
-        </Pressable>
-
-        {loginError ? (
-          <Text style={styles.errorText}>{getSafeErrorMessage(loginError)}</Text>
-        ) : null}
-
-        <AppButton
-          title="Masuk"
-          loading={loginLoading}
-          disabled={loginLoading}
-          onPress={handleSubmit(onSubmit)}
-        />
-
-        <View style={styles.dividerWrap}>
-          <View style={styles.divider} />
-          <Text style={styles.dividerText}>Atau masuk dengan</Text>
-          <View style={styles.divider} />
-        </View>
-
-        <SocialAuthButton
-          icon="logo-google"
-          title="Masuk dengan Google"
-          disabled={loginLoading}
-          onPress={handleGoogleLogin}
-        />
-
-        {isIOS ? (
-          <SocialAuthButton
-            icon="logo-apple"
-            title="Masuk dengan Apple ID"
-            disabled={loginLoading}
-            onPress={handleAppleLogin}
-          />
-        ) : null}
-
-        <View style={styles.bottomTextWrap}>
-          <Text style={styles.bottomText}>Belum punya akun? </Text>
-
-          <Pressable
-            disabled={loginLoading}
-            onPress={handleRegister}
-            hitSlop={10}
+          <ScrollView
+            style={styles.keyboardScrollView}
+            contentContainerStyle={styles.keyboardScrollContent}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={isIOS ? "interactive" : "on-drag"}
+            showsVerticalScrollIndicator={false}
+            bounces={false}
           >
-            <Text style={styles.bottomLink}>Daftar disini</Text>
-          </Pressable>
-        </View>
-      </AuthShell>
+            <AuthShell
+              title="Selamat Datang!"
+              subtitle="Masukkan email dan password untuk memulai cerita perjalanan anda."
+            >
+              <Controller
+                control={control}
+                name="email"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <AppInput
+                    icon="mail"
+                    placeholder="Email"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    keyboardType="email-address"
+                    autoComplete="email"
+                    textContentType="emailAddress"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    editable={!loginLoading}
+                    error={errors.email?.message}
+                  />
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="password"
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <AppInput
+                    icon="lock-closed"
+                    placeholder="Password"
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    secureTextEntry={!showPassword}
+                    textContentType="password"
+                    autoComplete="current-password"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    editable={!loginLoading}
+                    secureToggle
+                    secureVisible={showPassword}
+                    onToggleSecure={handleTogglePassword}
+                    error={errors.password?.message}
+                  />
+                )}
+              />
+
+              <Pressable
+                accessibilityRole="button"
+                disabled={loginLoading}
+                onPress={handleForgotPassword}
+                hitSlop={10}
+                style={styles.forgotButton}
+              >
+                <Text style={styles.forgotText}>Lupa password?</Text>
+              </Pressable>
+
+              {loginError ? (
+                <Text style={styles.errorText}>
+                  {getSafeErrorMessage(loginError)}
+                </Text>
+              ) : null}
+
+              <AppButton
+                title="Masuk"
+                loading={loginLoading}
+                disabled={loginLoading}
+                onPress={handleLoginPress}
+              />
+
+              <View style={styles.dividerWrap}>
+                <View style={styles.divider} />
+                <Text style={styles.dividerText}>Atau masuk dengan</Text>
+                <View style={styles.divider} />
+              </View>
+
+              <SocialAuthButton
+                icon="logo-google"
+                title="Masuk dengan Google"
+                disabled={loginLoading}
+                onPress={handleGoogleLogin}
+              />
+
+              {isIOS ? (
+                <SocialAuthButton
+                  icon="logo-apple"
+                  title="Masuk dengan Apple ID"
+                  disabled={loginLoading}
+                  onPress={handleAppleLogin}
+                />
+              ) : null}
+
+              <View style={styles.bottomTextWrap}>
+                <Text style={styles.bottomText}>Belum punya akun? </Text>
+
+                <Pressable
+                  accessibilityRole="button"
+                  disabled={loginLoading}
+                  onPress={handleRegister}
+                  hitSlop={10}
+                >
+                  <Text style={styles.bottomLink}>Daftar disini</Text>
+                </Pressable>
+              </View>
+            </AuthShell>
+          </ScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
 
       <AuthComingSoonModal
         visible={Boolean(comingSoonContent)}

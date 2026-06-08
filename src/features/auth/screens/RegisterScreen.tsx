@@ -2,14 +2,23 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 
 import { AppButton } from "@/components/ui/AppButton";
 import { AppInput } from "@/components/ui/AppInput";
+import { AuthDatePickerField, calculateAgeFromBirthdate } from "@/components/ui/DatePicker/AppDatePicker";
 import { getSafeErrorMessage } from "@/utils/error.utils";
 
-
-import { AppDatePicker, calculateAgeFromBirthdate } from "@/components/ui/DatePicker/AppDatePicker";
 import { AuthShell } from "../components/AuthShell";
 import { SocialAuthButton } from "../components/SocialAuthButton";
 import { useAuth } from "../hooks/useAuth";
@@ -37,6 +46,12 @@ const DEFAULT_REGISTER_VALUES: RegisterSchema = {
   placeBirth: "",
   birthdate: "",
 };
+
+const KEYBOARD_VERTICAL_OFFSET = Platform.select({
+  ios: 24,
+  android: 0,
+  default: 0,
+});
 
 const splitFullName = (fullName: string) => {
   const safeName = fullName.trim().replace(/\s+/g, " ");
@@ -91,6 +106,8 @@ export function RegisterScreen() {
     mode: "onTouched",
   });
 
+  const isIOS = useMemo(() => Platform.OS === "ios", []);
+
   const watchedBirthdate = useWatch({
     control,
     name: "birthdate",
@@ -109,366 +126,421 @@ export function RegisterScreen() {
   }, []);
 
   const handleLogin = useCallback(() => {
+    if (registerLoading) return;
     router.replace("/(auth)/login");
-  }, []);
+  }, [registerLoading]);
 
   const onSubmit = useCallback(
     async (values: RegisterSchema) => {
-      const email = values.email.trim().toLowerCase();
-      const username = normalizeUsername(values.username, email);
-      const { firstName, lastName } = splitFullName(values.fullName);
+      try {
+        const email = values.email.trim().toLowerCase();
+        const username = normalizeUsername(values.username, email);
+        const { firstName, lastName } = splitFullName(values.fullName);
 
-      await register({
-        first_name: firstName,
-        last_name: lastName,
+        await register({
+          first_name: firstName,
+          last_name: lastName,
 
-        place_birth: values.placeBirth.trim(),
-        birthdate: values.birthdate,
-        age: String(calculatedAge ?? 0),
+          place_birth: values.placeBirth.trim(),
+          birthdate: values.birthdate,
+          age: String(calculatedAge ?? 0),
 
-        job_type_id: 1,
-        job_type_name: values.jobTypeName.trim(),
+          job_type_id: 1,
+          job_type_name: values.jobTypeName.trim(),
 
-        province_id: 1,
-        city_id: 1,
-        kecamatan_id: 45,
-        kelurahan_id: 27,
+          province_id: 1,
+          city_id: 1,
+          kecamatan_id: 45,
+          kelurahan_id: 27,
 
-        address: values.address.trim(),
-        hobi: values.hobi.trim(),
+          address: values.address.trim(),
+          hobi: values.hobi.trim(),
 
-        role_id: 2,
+          role_id: 2,
 
-        email,
-        username,
+          email,
+          username,
 
-        password: values.password,
-        conf_password: values.confirmPassword,
+          password: values.password,
+          conf_password: values.confirmPassword,
 
-        point_users: "0",
-        is_pj: false,
-        name_jabatan: values.nameJabatan.trim(),
-      });
+          point_users: "0",
+          is_pj: false,
+          name_jabatan: values.nameJabatan.trim(),
+        });
+      } catch {
+        // Error aman ditampilkan melalui registerError.
+      }
     },
     [calculatedAge, register],
   );
 
+  const handleRegisterPress = useMemo(
+    () => handleSubmit(onSubmit),
+    [handleSubmit, onSubmit],
+  );
+
   return (
-    <AuthShell
-      title="Buat akun baru"
-      subtitle="Daftar dulu, lalu login untuk memulai cerita perjalanan anda."
+    <KeyboardAvoidingView
+      style={styles.keyboardAvoidingView}
+      behavior={isIOS ? "padding" : "height"}
+      keyboardVerticalOffset={KEYBOARD_VERTICAL_OFFSET}
     >
-      <Controller
-        control={control}
-        name="fullName"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <AppInput
-            icon="person"
-            placeholder="Nama lengkap"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            autoComplete="name"
-            textContentType="name"
-            autoCapitalize="words"
-            autoCorrect={false}
-            error={errors.fullName?.message}
-          />
-        )}
-      />
+      <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
+        <ScrollView
+          style={styles.keyboardScrollView}
+          contentContainerStyle={styles.keyboardScrollContent}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={isIOS ? "interactive" : "on-drag"}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
+          <AuthShell
+            title="Buat akun baru"
+            subtitle="Daftar dulu, lalu login untuk memulai cerita perjalanan anda."
+          >
+            <Controller
+              control={control}
+              name="fullName"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AppInput
+                  icon="person"
+                  placeholder="Nama lengkap"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  autoComplete="name"
+                  textContentType="name"
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  editable={!registerLoading}
+                  error={errors.fullName?.message}
+                />
+              )}
+            />
 
-      <Controller
-        control={control}
-        name="username"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <AppInput
-            icon="at"
-            placeholder="Username"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            autoCapitalize="none"
-            autoCorrect={false}
-            error={errors.username?.message}
-          />
-        )}
-      />
+            <Controller
+              control={control}
+              name="username"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AppInput
+                  icon="at"
+                  placeholder="Username"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!registerLoading}
+                  error={errors.username?.message}
+                />
+              )}
+            />
 
-      <Controller
-        control={control}
-        name="email"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <AppInput
-            icon="mail"
-            placeholder="Email"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            keyboardType="email-address"
-            autoComplete="email"
-            textContentType="emailAddress"
-            autoCapitalize="none"
-            autoCorrect={false}
-            error={errors.email?.message}
-          />
-        )}
-      />
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AppInput
+                  icon="mail"
+                  placeholder="Email"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  keyboardType="email-address"
+                  autoComplete="email"
+                  textContentType="emailAddress"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!registerLoading}
+                  error={errors.email?.message}
+                />
+              )}
+            />
 
-      <Controller
-        control={control}
-        name="password"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <AppInput
-            icon="lock-closed"
-            placeholder="Password"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            secureTextEntry={!showPassword}
-            textContentType="newPassword"
-            autoComplete="new-password"
-            autoCapitalize="none"
-            autoCorrect={false}
-            secureToggle
-            secureVisible={showPassword}
-            onToggleSecure={handleTogglePassword}
-            error={errors.password?.message}
-          />
-        )}
-      />
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AppInput
+                  icon="lock-closed"
+                  placeholder="Password"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  secureTextEntry={!showPassword}
+                  textContentType="newPassword"
+                  autoComplete="new-password"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!registerLoading}
+                  secureToggle
+                  secureVisible={showPassword}
+                  onToggleSecure={handleTogglePassword}
+                  error={errors.password?.message}
+                />
+              )}
+            />
 
-      <Controller
-        control={control}
-        name="confirmPassword"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <AppInput
-            icon="shield-checkmark"
-            placeholder="Konfirmasi password"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            secureTextEntry={!showConfirmPassword}
-            textContentType="newPassword"
-            autoComplete="new-password"
-            autoCapitalize="none"
-            autoCorrect={false}
-            secureToggle
-            secureVisible={showConfirmPassword}
-            onToggleSecure={handleToggleConfirmPassword}
-            error={errors.confirmPassword?.message}
-          />
-        )}
-      />
+            <Controller
+              control={control}
+              name="confirmPassword"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AppInput
+                  icon="shield-checkmark"
+                  placeholder="Konfirmasi password"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  secureTextEntry={!showConfirmPassword}
+                  textContentType="newPassword"
+                  autoComplete="new-password"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!registerLoading}
+                  secureToggle
+                  secureVisible={showConfirmPassword}
+                  onToggleSecure={handleToggleConfirmPassword}
+                  error={errors.confirmPassword?.message}
+                />
+              )}
+            />
 
-      <Controller
-        control={control}
-        name="jobTypeName"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <AppInput
-            icon="briefcase"
-            placeholder="Nama pekerjaan"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            autoCapitalize="words"
-            autoCorrect={false}
-            error={errors.jobTypeName?.message}
-          />
-        )}
-      />
+            <Controller
+              control={control}
+              name="jobTypeName"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AppInput
+                  icon="briefcase"
+                  placeholder="Nama pekerjaan"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  editable={!registerLoading}
+                  error={errors.jobTypeName?.message}
+                />
+              )}
+            />
 
-      <Controller
-        control={control}
-        name="nameJabatan"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <AppInput
-            icon="ribbon"
-            placeholder="Jabatan"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            autoCapitalize="words"
-            autoCorrect={false}
-            error={errors.nameJabatan?.message}
-          />
-        )}
-      />
+            <Controller
+              control={control}
+              name="nameJabatan"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AppInput
+                  icon="ribbon"
+                  placeholder="Jabatan"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  editable={!registerLoading}
+                  error={errors.nameJabatan?.message}
+                />
+              )}
+            />
 
-      <Controller
-        control={control}
-        name="placeBirth"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <AppInput
-            icon="location"
-            placeholder="Tempat lahir"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            autoCapitalize="words"
-            autoCorrect={false}
-            error={errors.placeBirth?.message}
-          />
-        )}
-      />
+            <Controller
+              control={control}
+              name="placeBirth"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AppInput
+                  icon="location"
+                  placeholder="Tempat lahir"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  editable={!registerLoading}
+                  error={errors.placeBirth?.message}
+                />
+              )}
+            />
 
-      <Controller
-        control={control}
-        name="birthdate"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <AppDatePicker
-            value={value}
-            label="Tanggal lahir"
-            placeholder="Pilih tanggal lahir"
-            maximumDate={new Date()}
-            onChange={onChange}
-            onBlur={onBlur}
-            error={errors.birthdate?.message}
-          />
-        )}
-      />
+            <Controller
+              control={control}
+              name="birthdate"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AuthDatePickerField
+                  icon="calendar-outline"
+                  placeholder="Pilih tanggal lahir"
+                  value={value}
+                  maximumDate={new Date()}
+                  disabled={registerLoading}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  error={errors.birthdate?.message}
+                />
+              )}
+            />
 
-      <View style={registerStyles.ageCard}>
-        <Text style={registerStyles.ageLabel}>Umur otomatis</Text>
-        <Text style={registerStyles.ageValue}>
-          {calculatedAge === null ? "-" : `${calculatedAge} tahun`}
-        </Text>
-      </View>
+            <View style={registerStyles.ageCard}>
+              <Text style={registerStyles.ageLabel}>Umur otomatis</Text>
+              <Text style={registerStyles.ageValue}>
+                {calculatedAge === null ? "-" : `${calculatedAge} tahun`}
+              </Text>
+            </View>
 
-      <Controller
-        control={control}
-        name="provinceName"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <AppInput
-            icon="map"
-            placeholder="Provinsi"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            autoCapitalize="words"
-            autoCorrect={false}
-            error={errors.provinceName?.message}
-          />
-        )}
-      />
+            <Controller
+              control={control}
+              name="provinceName"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AppInput
+                  icon="map"
+                  placeholder="Provinsi"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  editable={!registerLoading}
+                  error={errors.provinceName?.message}
+                />
+              )}
+            />
 
-      <Controller
-        control={control}
-        name="cityName"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <AppInput
-            icon="business"
-            placeholder="Kota"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            autoCapitalize="words"
-            autoCorrect={false}
-            error={errors.cityName?.message}
-          />
-        )}
-      />
+            <Controller
+              control={control}
+              name="cityName"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AppInput
+                  icon="business"
+                  placeholder="Kota"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  editable={!registerLoading}
+                  error={errors.cityName?.message}
+                />
+              )}
+            />
 
-      <Controller
-        control={control}
-        name="kecamatanName"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <AppInput
-            icon="navigate"
-            placeholder="Kecamatan"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            autoCapitalize="words"
-            autoCorrect={false}
-            error={errors.kecamatanName?.message}
-          />
-        )}
-      />
+            <Controller
+              control={control}
+              name="kecamatanName"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AppInput
+                  icon="navigate"
+                  placeholder="Kecamatan"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  editable={!registerLoading}
+                  error={errors.kecamatanName?.message}
+                />
+              )}
+            />
 
-      <Controller
-        control={control}
-        name="kelurahanName"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <AppInput
-            icon="pin"
-            placeholder="Kelurahan"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            autoCapitalize="words"
-            autoCorrect={false}
-            error={errors.kelurahanName?.message}
-          />
-        )}
-      />
+            <Controller
+              control={control}
+              name="kelurahanName"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AppInput
+                  icon="pin"
+                  placeholder="Kelurahan"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  editable={!registerLoading}
+                  error={errors.kelurahanName?.message}
+                />
+              )}
+            />
 
-      <Controller
-        control={control}
-        name="address"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <AppInput
-            icon="home"
-            placeholder="Alamat lengkap"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            autoCapitalize="sentences"
-            autoCorrect={false}
-            error={errors.address?.message}
-          />
-        )}
-      />
+            <Controller
+              control={control}
+              name="address"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AppInput
+                  icon="home"
+                  placeholder="Alamat lengkap"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  autoCapitalize="sentences"
+                  autoCorrect={false}
+                  editable={!registerLoading}
+                  error={errors.address?.message}
+                />
+              )}
+            />
 
-      <Controller
-        control={control}
-        name="hobi"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <AppInput
-            icon="sparkles"
-            placeholder="Hobi"
-            value={value}
-            onChangeText={onChange}
-            onBlur={onBlur}
-            autoCapitalize="words"
-            autoCorrect={false}
-            error={errors.hobi?.message}
-          />
-        )}
-      />
+            <Controller
+              control={control}
+              name="hobi"
+              render={({ field: { value, onChange, onBlur } }) => (
+                <AppInput
+                  icon="sparkles"
+                  placeholder="Hobi"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  editable={!registerLoading}
+                  error={errors.hobi?.message}
+                />
+              )}
+            />
 
-      {registerError ? (
-        <Text style={styles.errorText}>
-          {getSafeErrorMessage(registerError)}
-        </Text>
-      ) : null}
+            {registerError ? (
+              <Text style={styles.errorText}>
+                {getSafeErrorMessage(registerError)}
+              </Text>
+            ) : null}
 
-      <AppButton
-        title="Daftar"
-        loading={registerLoading}
-        disabled={registerLoading}
-        onPress={handleSubmit(onSubmit)}
-      />
+            <AppButton
+              title="Daftar"
+              loading={registerLoading}
+              disabled={registerLoading}
+              onPress={handleRegisterPress}
+            />
 
-      <View style={styles.dividerWrap}>
-        <View style={styles.divider} />
-        <Text style={styles.dividerText}>Atau daftar dengan</Text>
-        <View style={styles.divider} />
-      </View>
+            <View style={styles.dividerWrap}>
+              <View style={styles.divider} />
+              <Text style={styles.dividerText}>Atau daftar dengan</Text>
+              <View style={styles.divider} />
+            </View>
 
-      <SocialAuthButton icon="logo-google" title="Daftar dengan Google" />
+            <SocialAuthButton
+              icon="logo-google"
+              title="Daftar dengan Google"
+              disabled={registerLoading}
+            />
 
-      {Platform.OS === "ios" ? (
-        <SocialAuthButton icon="logo-apple" title="Daftar dengan Apple ID" />
-      ) : null}
+            {isIOS ? (
+              <SocialAuthButton
+                icon="logo-apple"
+                title="Daftar dengan Apple ID"
+                disabled={registerLoading}
+              />
+            ) : null}
 
-      <View style={styles.bottomTextWrap}>
-        <Text style={styles.bottomText}>Sudah punya akun? </Text>
+            <View style={styles.bottomTextWrap}>
+              <Text style={styles.bottomText}>Sudah punya akun? </Text>
 
-        <Pressable onPress={handleLogin} hitSlop={10}>
-          <Text style={styles.bottomLink}>Masuk disini</Text>
-        </Pressable>
-      </View>
-    </AuthShell>
+              <Pressable
+                accessibilityRole="button"
+                disabled={registerLoading}
+                onPress={handleLogin}
+                hitSlop={10}
+              >
+                <Text style={styles.bottomLink}>Masuk disini</Text>
+              </Pressable>
+            </View>
+          </AuthShell>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 

@@ -1,7 +1,18 @@
-import { StyleSheet } from "react-native";
 import { colors, spacing } from "@/theme";
+import { StyleSheet } from "react-native";
 
 export const authSharedStyles = StyleSheet.create({
+  keyboardAvoidingView: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  keyboardScrollView: {
+    flex: 1,
+  },
+  keyboardScrollContent: {
+    flexGrow: 1,
+  },
+
   forgotButton: {
     alignSelf: "flex-end",
     marginTop: -2,
@@ -49,4 +60,5 @@ export const authSharedStyles = StyleSheet.create({
     fontWeight: "700",
     lineHeight: 18,
   },
+  
 });

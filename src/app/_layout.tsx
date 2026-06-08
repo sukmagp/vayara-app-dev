@@ -1,12 +1,11 @@
-import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import { AppProvider } from "@/providers/AppProvider";
 import { colors } from "@/theme";
+import { Stack } from "expo-router";
+
+import { AppProviders } from "@/providers/AppProvider";
 
 export default function RootLayout() {
   return (
-    <AppProvider>
-      <StatusBar style="dark" backgroundColor={colors.background} />
+    <AppProviders>
       <Stack
         screenOptions={{
           headerShown: false,
@@ -16,6 +15,6 @@ export default function RootLayout() {
           },
         }}
       />
-    </AppProvider>
+    </AppProviders>
   );
 }

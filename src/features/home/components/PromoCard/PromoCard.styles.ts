@@ -1,58 +1,75 @@
-import { StyleSheet } from "react-native";
 import { colors, radius, spacing } from "@/theme";
+import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-  promoCard: {
-    width: 240,
-    height: 132,
-    borderRadius: radius.lg,
+  card: {
+    width: 232,
+    height: 172,
+    borderRadius: 30,
     overflow: "hidden",
     backgroundColor: colors.primary,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.72)",
+    shadowColor: colors.shadow,
+    shadowOpacity: 0.09,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 3,
   },
-  promoImageWrap: {
+
+  cardPressed: {
+    opacity: 0.78,
+    transform: [{ scale: 0.985 }],
+  },
+
+  imageWrap: {
     flex: 1,
-    justifyContent: "flex-end",
   },
-  promoImage: {
-    borderRadius: radius.lg,
+
+  image: {
+    borderRadius: 30,
   },
-  promoOverlay: {
-    padding: spacing.lg,
-    backgroundColor: "rgba(0, 55, 54, 0.36)",
-  },
-  promoTitle: {
-    color: colors.white,
-    fontSize: 24,
-    fontWeight: "900",
-  },
-  promoSubtitle: {
-    color: colors.white,
-    fontSize: 11,
-    fontWeight: "700",
-    marginTop: 2,
-  },
-  dealCard: {
-    width: 180,
-    borderRadius: radius.lg,
-    backgroundColor: colors.white,
-    overflow: "hidden",
-  },
-  dealImage: {
-    width: "100%",
-    height: 92,
-  },
-  dealContent: {
+
+  overlay: {
+    flex: 1,
+    justifyContent: "space-between",
     padding: spacing.md,
+    backgroundColor: "rgba(0, 34, 36, 0.30)",
   },
-  dealTitle: {
-    color: colors.accent,
-    fontSize: 18,
+
+  badge: {
+    alignSelf: "flex-start",
+    minHeight: 28,
+    borderRadius: radius.full,
+    paddingHorizontal: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: "rgba(255,255,255,0.92)",
+  },
+
+  badgeText: {
+    color: colors.primary,
+    fontSize: 10,
     fontWeight: "900",
   },
-  dealSubtitle: {
-    color: colors.textMuted,
-    fontSize: 11,
-    fontWeight: "700",
-    marginTop: 3,
+
+  copy: {
+    gap: 4,
+  },
+
+  title: {
+    color: colors.white,
+    fontSize: 20,
+    fontWeight: "900",
+    lineHeight: 24,
+    letterSpacing: -0.3,
+  },
+
+  subtitle: {
+    color: "rgba(255,255,255,0.88)",
+    fontSize: 12,
+    fontWeight: "800",
+    lineHeight: 16,
   },
 });

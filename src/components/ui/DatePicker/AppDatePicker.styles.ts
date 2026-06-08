@@ -38,12 +38,12 @@ export const datePickerStyles = StyleSheet.create({
   },
 
   controlError: {
-    borderColor: "#E45C5C",
+    borderColor: colors.danger,
   },
 
   iconWrap: {
-    width: 30,
-    height: 30,
+    width: 24,
+    height: 24,
     borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
@@ -63,7 +63,7 @@ export const datePickerStyles = StyleSheet.create({
 
   placeholder: {
     color: colors.textMuted,
-    fontWeight: "600",
+    fontWeight: "400",
   },
 
   pickerPanel: {
@@ -81,18 +81,126 @@ export const datePickerStyles = StyleSheet.create({
     borderRadius: radius.xl,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#0F7A78",
+    backgroundColor: colors.primary,
   },
 
   doneText: {
     color: "#FFFFFF",
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "900",
   },
 
   errorText: {
-    color: "#E45C5C",
+    color: colors.danger,
     fontSize: 12,
     fontWeight: "700",
+  },
+});
+
+export const authDatePickerFieldStyles = StyleSheet.create({
+  wrapper: {
+    width: "100%",
+  },
+
+  field: {
+    minHeight: 64,
+    width: "100%",
+    borderRadius: 24,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "transparent",
+    paddingHorizontal: 22,
+    paddingVertical: 14,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  fieldPressed: {
+    borderColor: "rgba(15, 122, 120, 0.28)",
+    transform: [{ scale: 0.996 }],
+  },
+
+  fieldError: {
+    borderColor: colors.danger,
+  },
+
+  fieldDisabled: {
+    opacity: 0.58,
+  },
+
+  iconWrap: {
+    width: 24,
+    alignItems: "flex-start",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+
+  icon: {
+    color: colors.textMuted,
+  },
+
+  text: {
+    flex: 1,
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: "400",
+  },
+
+  placeholder: {
+    color: colors.textMuted,
+  },
+
+  errorText: {
+    marginTop: spacing.xs,
+    color: colors.danger,
+    fontSize: 12,
+    fontWeight: "700",
+    lineHeight: 18,
+  },
+
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(15, 23, 42, 0.36)",
+    justifyContent: "flex-end",
+  },
+
+  modalCard: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingBottom: spacing.lg,
+    overflow: "hidden",
+  },
+
+  modalHeader: {
+    minHeight: 56,
+    paddingHorizontal: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  modalTitle: {
+    color: colors.text,
+    fontSize: 15,
+    fontWeight: "900",
+  },
+
+  modalCancelText: {
+    color: colors.textMuted,
+    fontSize: 14,
+    fontWeight: "800",
+  },
+
+  modalDoneText: {
+    color: colors.primary,
+    fontSize: 14,
+    fontWeight: "900",
+  },
+
+  iosPicker: {
+    width: "100%",
   },
 });

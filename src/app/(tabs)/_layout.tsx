@@ -49,8 +49,8 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="promo"
           options={{
-            title: "Promo",
-            tabBarIcon: ({ color, size }) => <Ionicons name="pricetag-outline" size={size} color={color} />,
+            title: "Reels",
+            tabBarIcon: ({ color, size }) => <Ionicons name="play-circle-outline" size={size} color={color} />,
           }}
         />
         <Tabs.Screen

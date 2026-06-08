@@ -1,5 +1,13 @@
-import { Image, ImageBackground, Pressable, Text, View } from "react-native";
 import { appImages } from "@/constants/assets";
+import { colors } from "@/theme";
+import { Ionicons } from "@expo/vector-icons";
+import {
+  ImageBackground,
+  ImageSourcePropType,
+  Pressable,
+  Text,
+  View,
+} from "react-native";
 import type { PromoCard as PromoCardType } from "../../types/home.types";
 import { styles } from "./PromoCard.styles";
 
@@ -9,34 +17,68 @@ type PromoCardProps = {
   onPress?: (item: PromoCardType) => void;
 };
 
-export function PromoCard({ item, variant = "banner", onPress }: PromoCardProps) {
-  const imageSource = item.image || (item.imageUrl ? { uri: item.imageUrl } : appImages.onboardingOne);
+const sanitizeText = (value?: string, fallback = "-") => {
+  const text = String(value || "")
+    .replace(/[\u0000-\u001F\u007F]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  if (variant === "deal") {
-    return (
-      <Pressable accessibilityRole="button" onPress={() => onPress?.(item)} style={styles.dealCard}>
-        <Image source={imageSource} resizeMode="cover" style={styles.dealImage} />
-        <View style={styles.dealContent}>
-          <Text style={styles.dealTitle}>{item.title}</Text>
-          <Text style={styles.dealSubtitle}>{item.subtitle}</Text>
-        </View>
-      </Pressable>
-    );
+  return text || fallback;
+};
+
+const resolveImageSource = (
+  item: PromoCardType,
+  fallback: ImageSourcePropType,
+): ImageSourcePropType => {
+  if (item.image) return item.image;
+
+  const imageUrl = String(item.imageUrl || "").trim();
+
+  if (/^https:\/\//i.test(imageUrl)) {
+    return { uri: imageUrl };
   }
 
+  return fallback;
+};
+
+export function PromoCard({ item, onPress }: PromoCardProps) {
+  const imageSource = resolveImageSource(item, appImages.onboardingOne);
+
+  const safeTitle = sanitizeText(item?.title, "Destinasi");
+  const safeSubtitle = sanitizeText(item?.subtitle, "Rekomendasi perjalanan");
+
   return (
-    <Pressable accessibilityRole="button" onPress={() => onPress?.(item)} style={styles.promoCard}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Buka rekomendasi ${safeTitle}`}
+      onPress={() => onPress?.(item)}
+      style={({ pressed }) => [
+        styles.card,
+        pressed ? styles.cardPressed : null,
+      ]}
+    >
       <ImageBackground
-          source={imageSource}
-          resizeMode="cover"
-          imageStyle={styles.promoImage}
-          style={styles.promoImageWrap}
-        >
-          <View style={styles.promoOverlay}>
-            <Text style={styles.promoTitle}>{item.title}</Text>
-            <Text style={styles.promoSubtitle}>{item.subtitle}</Text>
+        source={imageSource}
+        resizeMode="cover"
+        imageStyle={styles.image}
+        style={styles.imageWrap}
+      >
+        <View style={styles.overlay}>
+          <View style={styles.badge}>
+            <Ionicons name="sparkles-outline" size={12} color={colors.primary} />
+            <Text style={styles.badgeText}>Pilihan Vayara</Text>
           </View>
-        </ImageBackground>
+
+          <View style={styles.copy}>
+            <Text numberOfLines={2} style={styles.title}>
+              {safeTitle}
+            </Text>
+            <Text numberOfLines={2} style={styles.subtitle}>
+              {safeSubtitle}
+            </Text>
+          </View>
+        </View>
+      </ImageBackground>
     </Pressable>
   );
 }

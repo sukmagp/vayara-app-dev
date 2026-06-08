@@ -1,50 +1,48 @@
 import { appImages } from "@/constants/assets";
 import type { HomeDashboard } from "../types/home.types";
 
-export const homeMockData: HomeDashboard = {
+export const homeStaticData: HomeDashboard = {
   categories: [
-    { id: "bus", name: "Bus & Travel", icon: "bus" },
-    { id: "train", name: "Kereta", icon: "train" },
-    { id: "flight", name: "Pesawat", icon: "airplane" },
-    { id: "hotel", name: "Hotel", icon: "bed" },
-    { id: "trip", name: "Open Trip", icon: "map" },
+    { id: "open-trip", name: "Open Trip", icon: "map-outline" },
+    { id: "flight", name: "Pesawat", icon: "airplane-outline" },
+    { id: "train", name: "Kereta", icon: "train-outline" },
+    { id: "hotel", name: "Hotel", icon: "bed-outline" },
+    { id: "bus", name: "Travel", icon: "bus-outline" },
   ],
+
   myTrips: [
     {
       id: "trip-1",
-      title: "Open Trip - Gunung Semeru",
-      subtitle: "16 - 17 Agustus",
+      title: "Open Trip Gunung Semeru",
+      subtitle: "16 - 17 Agustus 2026",
       meta: "2 Orang",
-      status: "Progress",
+      status: "Berjalan",
       image: appImages.onboardingThree,
     },
   ],
+
   recommendations: [
     {
       id: "rec-1",
       title: "Bromo Sunrise",
-      subtitle: "Nikmati keindahan matahari terbit",
+      subtitle: "Nikmati sunrise terbaik dari Penanjakan.",
       image: appImages.onboardingOne,
     },
     {
       id: "rec-2",
       title: "Lake Escape",
-      subtitle: "Trip santai bareng teman",
+      subtitle: "Trip santai untuk healing bareng teman.",
       image: appImages.onboardingTwo,
     },
-  ],
-  promos: [
     {
-      id: "promo-1",
-      title: "Diskon 25%",
-      subtitle: "Bromo Sunrise",
-      image: appImages.onboardingOne,
-    },
-    {
-      id: "promo-2",
-      title: "Cashback Travel",
-      subtitle: "Lake Escape",
-      image: appImages.onboardingTwo,
+      id: "rec-3",
+      title: "Semeru Weekend",
+      subtitle: "Pendakian singkat dengan itinerary rapi.",
+      image: appImages.onboardingThree,
     },
   ],
+
+  promos: [],
 };
+
+export const homeMockData = homeStaticData;
