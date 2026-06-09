@@ -49,7 +49,7 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="promo"
           options={{
-            title: "Reels",
+            title: "Explore",
             tabBarIcon: ({ color, size }) => <Ionicons name="play-circle-outline" size={size} color={color} />,
           }}
         />

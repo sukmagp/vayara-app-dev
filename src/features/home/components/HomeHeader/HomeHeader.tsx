@@ -1,12 +1,10 @@
-import { appImages } from "@/constants/assets";
 import { colors } from "@/theme";
 import { Ionicons } from "@expo/vector-icons";
-import { Image, Pressable, Text, View } from "react-native";
+import { Pressable, Text, useWindowDimensions, View } from "react-native";
 import { styles } from "./HomeHeader.styles";
 
 type HomeHeaderProps = {
   userName?: string;
-  location?: string;
   notificationCount?: number;
   onNotificationPress?: () => void;
   onProfilePress?: () => void;
@@ -30,46 +28,89 @@ const clampNotificationCount = (value?: number) => {
   return Math.floor(count);
 };
 
+const clamp = (value: number, min: number, max: number) => {
+  return Math.min(Math.max(value, min), max);
+};
+
 export function HomeHeader({
-  userName = "Vayara Explorer",
-  location = "Jakarta, Indonesia",
-  notificationCount = 3,
+  userName = "Traveler",
+  notificationCount = 0,
   onNotificationPress,
   onProfilePress,
 }: HomeHeaderProps) {
+  const { width } = useWindowDimensions();
+
   const safeUserName = sanitizeText(userName, "Traveler");
-  const safeLocation = sanitizeText(location, "Indonesia");
   const safeNotificationCount = clampNotificationCount(notificationCount);
+
+  const isSmallDevice = width < 380;
+  const circleSize = clamp(width * 0.108, 38, 48);
+  const iconSize = clamp(width * 0.052, 18, 23);
+  const nameSize = clamp(width * 0.052, 18, 23);
+  const labelSize = clamp(width * 0.035, 12, 15);
 
   return (
     <View style={styles.header}>
-      <View style={styles.brandArea}>
-        <Image source={appImages.logo} resizeMode="contain" style={styles.logo} />
+      <View style={styles.greetingWrap}>
+        <Text
+          numberOfLines={1}
+          style={[
+            styles.greetingLabel,
+            {
+              fontSize: labelSize,
+              lineHeight: labelSize + 4,
+            },
+          ]}
+        >
+          Selamat datang,
+        </Text>
 
-        <View style={styles.greetingWrap}>
-          <Text numberOfLines={1} style={styles.greetingLabel}>
-            Selamat datang,
-          </Text>
-          <Text numberOfLines={1} style={styles.greetingName}>
-            {safeUserName}
-          </Text>
-        </View>
+        <Text
+          numberOfLines={1}
+          style={[
+            styles.greetingName,
+            {
+              fontSize: nameSize,
+              lineHeight: nameSize + 4,
+            },
+          ]}
+        >
+          {safeUserName}
+        </Text>
       </View>
 
-      <View style={styles.actions}>
+      <View style={[styles.actions, isSmallDevice ? styles.actionsSmall : null]}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Buka notifikasi"
+          accessibilityLabel={`Buka notifikasi, ${safeNotificationCount} notifikasi belum dibaca`}
           onPress={onNotificationPress}
           style={({ pressed }) => [
-            styles.notificationButton,
+            styles.circleButton,
+            {
+              width: circleSize,
+              height: circleSize,
+              borderRadius: circleSize / 2,
+            },
             pressed ? styles.actionPressed : null,
           ]}
         >
-          <Ionicons name="notifications-outline" size={20} color={colors.primary} />
+          <Ionicons
+            name="notifications-outline"
+            size={iconSize}
+            color={colors.primary}
+          />
 
           {safeNotificationCount > 0 ? (
-            <View style={styles.notificationBadge}>
+            <View
+              style={[
+                styles.notificationBadge,
+                {
+                  minWidth: clamp(circleSize * 0.38, 16, 21),
+                  height: clamp(circleSize * 0.38, 16, 21),
+                  borderRadius: clamp(circleSize * 0.19, 8, 11),
+                },
+              ]}
+            >
               <Text style={styles.notificationBadgeText}>
                 {safeNotificationCount}
               </Text>
@@ -82,11 +123,16 @@ export function HomeHeader({
           accessibilityLabel="Buka profil"
           onPress={onProfilePress}
           style={({ pressed }) => [
-            styles.avatar,
+            styles.circleButton,
+            {
+              width: circleSize,
+              height: circleSize,
+              borderRadius: circleSize / 2,
+            },
             pressed ? styles.actionPressed : null,
           ]}
         >
-          <Ionicons name="person" size={18} color={colors.primary} />
+          <Ionicons name="person" size={iconSize} color={colors.primary} />
         </Pressable>
       </View>
     </View>

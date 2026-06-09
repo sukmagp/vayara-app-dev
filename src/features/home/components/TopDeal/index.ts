@@ -1,0 +1,1 @@
+export { TopDealCard } from "./TopDealCard";

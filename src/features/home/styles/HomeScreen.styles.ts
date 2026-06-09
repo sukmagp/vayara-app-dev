@@ -1,6 +1,5 @@
+import { colors, spacing } from "@/theme";
 import { StyleSheet } from "react-native";
-
-import { colors, radius, spacing } from "@/theme";
 
 export const styles = StyleSheet.create({
   centerContent: {
@@ -8,132 +7,75 @@ export const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
   },
 
+  list: {
+    flex: 1,
+    backgroundColor: "#FFF8EE",
+  },
+
   content: {
-    paddingTop: spacing.md,
+    paddingBottom: 116,
+    backgroundColor: "#FFF8EE",
+  },
+
+  topPanel: {
+    position: "relative",
     paddingHorizontal: spacing.xl,
-    paddingBottom: 120,
-  },
-
-  heroCard: {
-    marginTop: spacing.xl,
-    borderRadius: 34,
-    padding: spacing.lg,
+    paddingBottom: 49,
     backgroundColor: colors.primary,
+    borderBottomLeftRadius: 34,
+    borderBottomRightRadius: 34,
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.18)",
-    shadowColor: colors.shadow,
-    shadowOpacity: 0.1,
-    shadowRadius: 22,
-    shadowOffset: { width: 0, height: 14 },
-    elevation: 4,
   },
 
-  heroOrnamentOne: {
+  topPanelGlowOne: {
     position: "absolute",
-    width: 132,
-    height: 132,
-    borderRadius: 66,
-    top: -50,
-    right: -34,
-    backgroundColor: "rgba(255,255,255,0.12)",
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    top: -70,
+    right: -48,
+    backgroundColor: "rgba(255,255,255,0.09)",
   },
 
-  heroOrnamentTwo: {
+  topPanelGlowTwo: {
     position: "absolute",
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    bottom: -34,
-    left: -24,
+    width: 118,
+    height: 118,
+    borderRadius: 59,
+    bottom: -62,
+    left: -44,
     backgroundColor: "rgba(255,255,255,0.08)",
   },
 
-  heroEyebrow: {
-    alignSelf: "flex-start",
-    minHeight: 28,
-    borderRadius: radius.full,
-    paddingHorizontal: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(255,255,255,0.14)",
+  categoryList: {
+    paddingTop: 22,
+    paddingRight: spacing.xl,
   },
 
-  heroEyebrowText: {
-    color: "rgba(255,255,255,0.92)",
-    fontSize: 11,
-    fontWeight: "900",
-  },
-
-  heroTitle: {
-    marginTop: spacing.md,
-    color: colors.white,
-    fontSize: 29,
-    fontWeight: "900",
-    letterSpacing: -0.5,
-    lineHeight: 35,
-  },
-
-  heroSubtitle: {
-    marginTop: 8,
-    color: "rgba(255,255,255,0.82)",
-    fontSize: 13,
-    fontWeight: "700",
-    lineHeight: 19,
-  },
-
-  heroStatsRow: {
-    marginTop: spacing.lg,
-    flexDirection: "row",
-    gap: spacing.sm,
-  },
-
-  heroStatCard: {
-    flex: 1,
-    minHeight: 58,
-    borderRadius: 20,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: "rgba(255,255,255,0.12)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
-    justifyContent: "center",
-  },
-
-  heroStatValue: {
-    color: colors.white,
-    fontSize: 18,
-    fontWeight: "900",
-  },
-
-  heroStatLabel: {
-    marginTop: 2,
-    color: "rgba(255,255,255,0.74)",
-    fontSize: 10,
-    fontWeight: "800",
+  body: {
+    marginTop: -31,
+    paddingHorizontal: spacing.xl,
   },
 
   searchBox: {
-    marginTop: spacing.lg,
-    minHeight: 54,
-    borderRadius: 24,
-    backgroundColor: "rgba(255,255,255,0.94)",
+    minHeight: 48,
+    borderRadius: 17,
+    backgroundColor: "rgba(255,255,255,0.98)",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: spacing.lg,
     gap: spacing.sm,
     borderWidth: 1,
-    borderColor: "rgba(15,122,120,0.1)",
+    borderColor: "rgba(15,122,120,0.08)",
     shadowColor: colors.shadow,
-    shadowOpacity: 0.06,
+    shadowOpacity: 0.07,
     shadowRadius: 14,
     shadowOffset: { width: 0, height: 8 },
-    elevation: 2,
+    elevation: 3,
   },
 
   searchPressed: {
-    opacity: 0.76,
+    opacity: 0.78,
     transform: [{ scale: 0.99 }],
   },
 
@@ -144,24 +86,8 @@ export const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
-  searchShortcut: {
-    minHeight: 28,
-    borderRadius: radius.full,
-    paddingHorizontal: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(15,122,120,0.08)",
-  },
-
-  searchShortcutText: {
-    color: colors.primary,
-    fontSize: 11,
-    fontWeight: "900",
-  },
-
-  categoryList: {
-    gap: spacing.md,
-    paddingRight: spacing.xl,
+  headerAfterSearch: {
+    paddingTop: 6,
   },
 
   recommendationList: {
@@ -169,9 +95,73 @@ export const styles = StyleSheet.create({
     paddingRight: spacing.xl,
   },
 
+  recommendationCard: {
+    width: 256,
+    height: 168,
+    borderRadius: 24,
+    overflow: "hidden",
+    backgroundColor: "rgba(15,122,120,0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(15,122,120,0.08)",
+  },
+
+  recommendationPressed: {
+    opacity: 0.78,
+    transform: [{ scale: 0.985 }],
+  },
+
+  recommendationImage: {
+    width: "100%",
+    height: "100%",
+  },
+
+  recommendationOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "space-between",
+    padding: spacing.lg,
+    backgroundColor: "rgba(0,0,0,0.18)",
+  },
+
+  recommendationBadge: {
+    alignSelf: "flex-start",
+    maxWidth: "86%",
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    backgroundColor: "rgba(255,255,255,0.9)",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+
+  recommendationBadgeText: {
+    flexShrink: 1,
+    color: colors.primary,
+    fontSize: 12,
+    fontWeight: "900",
+  },
+
+  recommendationCopy: {
+    gap: 5,
+  },
+
+  recommendationTitle: {
+    color: colors.white,
+    fontSize: 25,
+    fontWeight: "900",
+    letterSpacing: -0.35,
+  },
+
+  recommendationSubtitle: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: "900",
+    lineHeight: 18,
+  },
+
   listEmptyCard: {
-    minHeight: 104,
-    borderRadius: 26,
+    minHeight: 96,
+    borderRadius: 24,
     backgroundColor: "rgba(255,255,255,0.78)",
     borderWidth: 1,
     borderColor: "rgba(15,122,120,0.08)",
@@ -192,7 +182,40 @@ export const styles = StyleSheet.create({
     gap: spacing.md,
   },
 
+  topDealsList: {
+    paddingHorizontal: spacing.xl,
+  },
+
+  topDealsRow: {
+    flexDirection: "row",
+    marginBottom: spacing.md,
+  },
+
+  topDealItem: {
+    flex: 1,
+  },
+
+  topDealItemSpacer: {
+    marginRight: spacing.md,
+  },
+
+  topDealPlaceholder: {
+    flex: 1,
+  },
+
+  topDealsFooter: {
+    minHeight: 52,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  topDealsFooterText: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: "900",
+  },
+
   bottomSpacer: {
-    height: 28,
+    height: 20,
   },
 });

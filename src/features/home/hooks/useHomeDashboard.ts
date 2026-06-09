@@ -13,21 +13,29 @@ type HomeDashboardState = {
 
 export const useHomeDashboard = (): HomeDashboardState => {
   const [refreshVersion, setRefreshVersion] = useState(0);
+  const [isFetching, setIsFetching] = useState(false);
 
   const data = useMemo(() => {
     return homeService.getDashboard();
   }, [refreshVersion]);
 
   const refetch = useCallback(async () => {
-    const nextData = homeService.getDashboard();
-    setRefreshVersion((currentValue) => currentValue + 1);
-    return nextData;
+    try {
+      setIsFetching(true);
+
+      const nextData = homeService.getDashboard();
+      setRefreshVersion((currentValue) => currentValue + 1);
+
+      return nextData;
+    } finally {
+      setIsFetching(false);
+    }
   }, []);
 
   return {
     data,
     isLoading: false,
-    isFetching: false,
+    isFetching,
     isError: false,
     error: null,
     refetch,

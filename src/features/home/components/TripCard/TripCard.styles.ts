@@ -3,19 +3,19 @@ import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   card: {
-    minHeight: 132,
-    borderRadius: 28,
-    backgroundColor: "rgba(255,255,255,0.92)",
-    padding: spacing.sm,
+    minHeight: 118,
+    borderRadius: 25,
+    backgroundColor: "rgba(255,255,255,0.94)",
+    padding: 9,
     flexDirection: "row",
     gap: spacing.md,
     borderWidth: 1,
     borderColor: "rgba(15,122,120,0.08)",
     shadowColor: colors.shadow,
-    shadowOpacity: 0.07,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 3,
+    shadowOpacity: 0.05,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 7 },
+    elevation: 2,
   },
 
   cardPressed: {
@@ -24,32 +24,48 @@ export const styles = StyleSheet.create({
   },
 
   image: {
-    width: 108,
-    height: 112,
-    borderRadius: 22,
+    width: 102,
+    height: 100,
+    borderRadius: 20,
+    backgroundColor: "rgba(15,122,120,0.08)",
   },
 
   content: {
     flex: 1,
     minWidth: 0,
-    paddingVertical: 6,
+    paddingVertical: 4,
     justifyContent: "space-between",
   },
 
-  titleRow: {
-    gap: 8,
+  titleGroup: {
+    gap: 7,
   },
 
   title: {
     color: colors.primary,
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "900",
-    lineHeight: 20,
-    letterSpacing: -0.2,
+    lineHeight: 21,
+    letterSpacing: -0.25,
+  },
+
+  statusBadge: {
+    alignSelf: "flex-start",
+    borderRadius: radius.full,
+    backgroundColor: colors.accentSoft,
+    paddingHorizontal: 11,
+    paddingVertical: 5,
+  },
+
+  statusText: {
+    color: colors.primary,
+    fontSize: 11,
+    fontWeight: "900",
+    letterSpacing: 0.15,
   },
 
   metaGroup: {
-    gap: 7,
+    gap: 6,
   },
 
   metaRow: {
@@ -71,21 +87,6 @@ export const styles = StyleSheet.create({
     flex: 1,
     color: colors.textMuted,
     fontSize: 12,
-    fontWeight: "800",
-  },
-
-  statusBadge: {
-    alignSelf: "flex-start",
-    borderRadius: radius.full,
-    backgroundColor: colors.accentSoft,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-
-  statusText: {
-    color: colors.primary,
-    fontSize: 10,
     fontWeight: "900",
-    letterSpacing: 0.2,
   },
 });
