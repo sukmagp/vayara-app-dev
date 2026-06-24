@@ -29,7 +29,7 @@ const DEFAULT_LOGIN_VALUES: LoginSchema = {
   password: "",
 };
 
-type ComingSoonFeature = "forgot-password" | "google-login" | "apple-login";
+type ComingSoonFeature = "forgot-password" | "apple-login";
 
 const COMING_SOON_CONTENT: Record<
   ComingSoonFeature,
@@ -44,12 +44,6 @@ const COMING_SOON_CONTENT: Record<
     title: "Reset password segera hadir",
     message:
       "Fitur pemulihan akun sedang kami rapikan agar proses reset password tetap aman, simple, dan nyaman seperti itinerary liburan.",
-  },
-  "google-login": {
-    badge: "One Tap Journey",
-    title: "Login Google segera hadir",
-    message:
-      "Tim Vayara sedang menyiapkan login Google yang aman. Nanti kamu bisa masuk lebih cepat sebelum mulai explore trip impian.",
   },
   "apple-login": {
     badge: "Smooth Check-in",
@@ -70,7 +64,14 @@ export function LoginScreen() {
   const [comingSoonFeature, setComingSoonFeature] =
     useState<ComingSoonFeature | null>(null);
 
-  const { login, loginLoading, loginError } = useAuth();
+  const {
+    login,
+    loginLoading,
+    loginError,
+    loginWithGoogle,
+    loginWithGoogleLoading,
+    loginWithGoogleError,
+  } = useAuth();
 
   const {
     control,
@@ -83,6 +84,8 @@ export function LoginScreen() {
   });
 
   const isIOS = useMemo(() => Platform.OS === "ios", []);
+  const authLoading = loginLoading || loginWithGoogleLoading;
+  const authError = loginError || loginWithGoogleError;
 
   const comingSoonContent = useMemo(() => {
     if (!comingSoonFeature) return null;
@@ -98,24 +101,29 @@ export function LoginScreen() {
   }, []);
 
   const handleForgotPassword = useCallback(() => {
-    if (loginLoading) return;
+    if (authLoading) return;
     setComingSoonFeature("forgot-password");
-  }, [loginLoading]);
+  }, [authLoading]);
 
-  const handleGoogleLogin = useCallback(() => {
-    if (loginLoading) return;
-    setComingSoonFeature("google-login");
-  }, [loginLoading]);
+  const handleGoogleLogin = useCallback(async () => {
+    if (authLoading) return;
+
+    try {
+      await loginWithGoogle();
+    } catch {
+      // Error aman ditampilkan melalui loginWithGoogleError.
+    }
+  }, [authLoading, loginWithGoogle]);
 
   const handleAppleLogin = useCallback(() => {
-    if (loginLoading) return;
+    if (authLoading) return;
     setComingSoonFeature("apple-login");
-  }, [loginLoading]);
+  }, [authLoading]);
 
   const handleRegister = useCallback(() => {
-    if (loginLoading) return;
+    if (authLoading) return;
     router.push("/(auth)/register");
-  }, [loginLoading]);
+  }, [authLoading]);
 
   const onSubmit = useCallback(
     async (values: LoginSchema) => {
@@ -174,7 +182,7 @@ export function LoginScreen() {
                     textContentType="emailAddress"
                     autoCapitalize="none"
                     autoCorrect={false}
-                    editable={!loginLoading}
+                    editable={!authLoading}
                     error={errors.email?.message}
                   />
                 )}
@@ -195,7 +203,7 @@ export function LoginScreen() {
                     autoComplete="current-password"
                     autoCapitalize="none"
                     autoCorrect={false}
-                    editable={!loginLoading}
+                    editable={!authLoading}
                     secureToggle
                     secureVisible={showPassword}
                     onToggleSecure={handleTogglePassword}
@@ -206,7 +214,7 @@ export function LoginScreen() {
 
               <Pressable
                 accessibilityRole="button"
-                disabled={loginLoading}
+                disabled={authLoading}
                 onPress={handleForgotPassword}
                 hitSlop={10}
                 style={styles.forgotButton}
@@ -214,16 +222,16 @@ export function LoginScreen() {
                 <Text style={styles.forgotText}>Lupa password?</Text>
               </Pressable>
 
-              {loginError ? (
+              {authError ? (
                 <Text style={styles.errorText}>
-                  {getSafeErrorMessage(loginError)}
+                  {getSafeErrorMessage(authError)}
                 </Text>
               ) : null}
 
               <AppButton
                 title="Masuk"
                 loading={loginLoading}
-                disabled={loginLoading}
+                disabled={authLoading}
                 onPress={handleLoginPress}
               />
 
@@ -236,7 +244,7 @@ export function LoginScreen() {
               <SocialAuthButton
                 icon="logo-google"
                 title="Masuk dengan Google"
-                disabled={loginLoading}
+                disabled={authLoading}
                 onPress={handleGoogleLogin}
               />
 
@@ -244,7 +252,7 @@ export function LoginScreen() {
                 <SocialAuthButton
                   icon="logo-apple"
                   title="Masuk dengan Apple ID"
-                  disabled={loginLoading}
+                  disabled={authLoading}
                   onPress={handleAppleLogin}
                 />
               ) : null}
@@ -254,7 +262,7 @@ export function LoginScreen() {
 
                 <Pressable
                   accessibilityRole="button"
-                  disabled={loginLoading}
+                  disabled={authLoading}
                   onPress={handleRegister}
                   hitSlop={10}
                 >

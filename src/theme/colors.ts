@@ -11,7 +11,7 @@ export const colors = Object.freeze({
   mint: "#AAE0D2",
   mintSoft: "#EAF8F4",
 
-  background: "#FFF8EC",
+  background: "#FFF3D3",
   card: "#FFFDF7",
   white: "#FFFFFF",
   black: "#000000",

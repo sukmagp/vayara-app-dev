@@ -94,7 +94,14 @@ export function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { register, registerLoading, registerError } = useAuth();
+  const {
+    register,
+    registerLoading,
+    registerError,
+    registerWithGoogle,
+    registerWithGoogleLoading,
+    registerWithGoogleError,
+  } = useAuth();
 
   const {
     control,
@@ -107,6 +114,8 @@ export function RegisterScreen() {
   });
 
   const isIOS = useMemo(() => Platform.OS === "ios", []);
+  const authLoading = registerLoading || registerWithGoogleLoading;
+  const authError = registerError || registerWithGoogleError;
 
   const watchedBirthdate = useWatch({
     control,
@@ -126,9 +135,19 @@ export function RegisterScreen() {
   }, []);
 
   const handleLogin = useCallback(() => {
-    if (registerLoading) return;
+    if (authLoading) return;
     router.replace("/(auth)/login");
-  }, [registerLoading]);
+  }, [authLoading]);
+
+  const handleGoogleRegister = useCallback(async () => {
+    if (authLoading) return;
+
+    try {
+      await registerWithGoogle();
+    } catch {
+      // Error aman ditampilkan melalui registerWithGoogleError.
+    }
+  }, [authLoading, registerWithGoogle]);
 
   const onSubmit = useCallback(
     async (values: RegisterSchema) => {
@@ -197,7 +216,7 @@ export function RegisterScreen() {
         >
           <AuthShell
             title="Buat akun baru"
-            subtitle="Daftar dulu, lalu login untuk memulai cerita perjalanan anda."
+            subtitle="Daftar dulu, lalu verifikasi OTP untuk memulai cerita perjalanan anda."
           >
             <Controller
               control={control}
@@ -213,7 +232,7 @@ export function RegisterScreen() {
                   textContentType="name"
                   autoCapitalize="words"
                   autoCorrect={false}
-                  editable={!registerLoading}
+                  editable={!authLoading}
                   error={errors.fullName?.message}
                 />
               )}
@@ -231,7 +250,7 @@ export function RegisterScreen() {
                   onBlur={onBlur}
                   autoCapitalize="none"
                   autoCorrect={false}
-                  editable={!registerLoading}
+                  editable={!authLoading}
                   error={errors.username?.message}
                 />
               )}
@@ -252,7 +271,7 @@ export function RegisterScreen() {
                   textContentType="emailAddress"
                   autoCapitalize="none"
                   autoCorrect={false}
-                  editable={!registerLoading}
+                  editable={!authLoading}
                   error={errors.email?.message}
                 />
               )}
@@ -273,7 +292,7 @@ export function RegisterScreen() {
                   autoComplete="new-password"
                   autoCapitalize="none"
                   autoCorrect={false}
-                  editable={!registerLoading}
+                  editable={!authLoading}
                   secureToggle
                   secureVisible={showPassword}
                   onToggleSecure={handleTogglePassword}
@@ -297,7 +316,7 @@ export function RegisterScreen() {
                   autoComplete="new-password"
                   autoCapitalize="none"
                   autoCorrect={false}
-                  editable={!registerLoading}
+                  editable={!authLoading}
                   secureToggle
                   secureVisible={showConfirmPassword}
                   onToggleSecure={handleToggleConfirmPassword}
@@ -318,7 +337,7 @@ export function RegisterScreen() {
                   onBlur={onBlur}
                   autoCapitalize="words"
                   autoCorrect={false}
-                  editable={!registerLoading}
+                  editable={!authLoading}
                   error={errors.jobTypeName?.message}
                 />
               )}
@@ -336,7 +355,7 @@ export function RegisterScreen() {
                   onBlur={onBlur}
                   autoCapitalize="words"
                   autoCorrect={false}
-                  editable={!registerLoading}
+                  editable={!authLoading}
                   error={errors.nameJabatan?.message}
                 />
               )}
@@ -354,7 +373,7 @@ export function RegisterScreen() {
                   onBlur={onBlur}
                   autoCapitalize="words"
                   autoCorrect={false}
-                  editable={!registerLoading}
+                  editable={!authLoading}
                   error={errors.placeBirth?.message}
                 />
               )}
@@ -369,7 +388,7 @@ export function RegisterScreen() {
                   placeholder="Pilih tanggal lahir"
                   value={value}
                   maximumDate={new Date()}
-                  disabled={registerLoading}
+                  disabled={authLoading}
                   onChange={onChange}
                   onBlur={onBlur}
                   error={errors.birthdate?.message}
@@ -396,7 +415,7 @@ export function RegisterScreen() {
                   onBlur={onBlur}
                   autoCapitalize="words"
                   autoCorrect={false}
-                  editable={!registerLoading}
+                  editable={!authLoading}
                   error={errors.provinceName?.message}
                 />
               )}
@@ -414,7 +433,7 @@ export function RegisterScreen() {
                   onBlur={onBlur}
                   autoCapitalize="words"
                   autoCorrect={false}
-                  editable={!registerLoading}
+                  editable={!authLoading}
                   error={errors.cityName?.message}
                 />
               )}
@@ -432,7 +451,7 @@ export function RegisterScreen() {
                   onBlur={onBlur}
                   autoCapitalize="words"
                   autoCorrect={false}
-                  editable={!registerLoading}
+                  editable={!authLoading}
                   error={errors.kecamatanName?.message}
                 />
               )}
@@ -450,7 +469,7 @@ export function RegisterScreen() {
                   onBlur={onBlur}
                   autoCapitalize="words"
                   autoCorrect={false}
-                  editable={!registerLoading}
+                  editable={!authLoading}
                   error={errors.kelurahanName?.message}
                 />
               )}
@@ -468,7 +487,7 @@ export function RegisterScreen() {
                   onBlur={onBlur}
                   autoCapitalize="sentences"
                   autoCorrect={false}
-                  editable={!registerLoading}
+                  editable={!authLoading}
                   error={errors.address?.message}
                 />
               )}
@@ -486,22 +505,22 @@ export function RegisterScreen() {
                   onBlur={onBlur}
                   autoCapitalize="words"
                   autoCorrect={false}
-                  editable={!registerLoading}
+                  editable={!authLoading}
                   error={errors.hobi?.message}
                 />
               )}
             />
 
-            {registerError ? (
+            {authError ? (
               <Text style={styles.errorText}>
-                {getSafeErrorMessage(registerError)}
+                {getSafeErrorMessage(authError)}
               </Text>
             ) : null}
 
             <AppButton
               title="Daftar"
               loading={registerLoading}
-              disabled={registerLoading}
+              disabled={authLoading}
               onPress={handleRegisterPress}
             />
 
@@ -514,14 +533,15 @@ export function RegisterScreen() {
             <SocialAuthButton
               icon="logo-google"
               title="Daftar dengan Google"
-              disabled={registerLoading}
+              disabled={authLoading}
+              onPress={handleGoogleRegister}
             />
 
             {isIOS ? (
               <SocialAuthButton
                 icon="logo-apple"
                 title="Daftar dengan Apple ID"
-                disabled={registerLoading}
+                disabled={authLoading}
               />
             ) : null}
 
@@ -530,7 +550,7 @@ export function RegisterScreen() {
 
               <Pressable
                 accessibilityRole="button"
-                disabled={registerLoading}
+                disabled={authLoading}
                 onPress={handleLogin}
                 hitSlop={10}
               >

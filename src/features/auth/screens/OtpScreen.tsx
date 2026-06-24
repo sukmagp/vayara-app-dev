@@ -81,6 +81,8 @@ export function OtpScreen() {
     identifier?: string;
     email?: string;
     purpose?: string;
+    otpToken?: string;
+    sessionId?: string;
   }>();
 
   const rawIdentifier = useMemo(() => {
@@ -93,6 +95,18 @@ export function OtpScreen() {
      */
     return identifierParam || emailParam;
   }, [params.identifier, params.email]);
+
+  const purpose = useMemo(() => {
+    return getParamValue(params.purpose) === "register" ? "register" : "login";
+  }, [params.purpose]);
+
+  const otpToken = useMemo(() => {
+    return getParamValue(params.otpToken);
+  }, [params.otpToken]);
+
+  const sessionId = useMemo(() => {
+    return getParamValue(params.sessionId);
+  }, [params.sessionId]);
 
   const displayIdentifier = useMemo(() => {
     const emailParam = getParamValue(params.email);
@@ -234,6 +248,9 @@ export function OtpScreen() {
       await verifyOtp({
         identifier: rawIdentifier.trim().toLowerCase(),
         otp: otpValue,
+        purpose,
+        otpToken,
+        sessionId,
       });
     } catch {
       /**
@@ -243,7 +260,7 @@ export function OtpScreen() {
     } finally {
       submitLockedRef.current = false;
     }
-  }, [canSubmit, rawIdentifier, otpValue, verifyOtp]);
+  }, [canSubmit, rawIdentifier, otpValue, purpose, otpToken, sessionId, verifyOtp]);
 
   const handleResend = useCallback(() => {
     if (!canResend) return;

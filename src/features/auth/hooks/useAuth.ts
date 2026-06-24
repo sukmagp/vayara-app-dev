@@ -1,10 +1,14 @@
-import { useDynamicIsland } from "@/components/ui/DynamicIsland/DynamicIslandAlert";
 import { secureStorage } from "@/services/storage/secureStorage";
 import { storageKeys } from "@/services/storage/storage.keys";
 import { useMutation } from "@tanstack/react-query";
 import { router } from "expo-router";
 
 import { authService } from "../services/auth.service";
+import {
+  signInWithGoogle,
+  signOutFromGoogle,
+  signUpWithGoogle,
+} from "../services/googleAuth.service";
 import { useAuthStore } from "../stores/auth.store";
 import type {
   AuthOtpTicket,
@@ -31,11 +35,13 @@ const safeParseUser = (value: string | null): AuthUser | null => {
   }
 };
 
-const removeLegacyTokenStorage = async () => {
-  await Promise.allSettled([
-    secureStorage.removeItem(storageKeys.accessToken),
-    secureStorage.removeItem(storageKeys.refreshToken),
-  ]);
+const persistOptionalToken = async (key: string, value?: string | null) => {
+  if (value) {
+    await secureStorage.setItem(key, value);
+    return;
+  }
+
+  await secureStorage.removeItem(key);
 };
 
 const persistSession = async (session: AuthResponse) => {
@@ -46,9 +52,9 @@ const persistSession = async (session: AuthResponse) => {
   await Promise.all([
     secureStorage.setItem(storageKeys.userId, session.userId),
     secureStorage.setItem(storageKeys.authUser, JSON.stringify(session.user)),
+    persistOptionalToken(storageKeys.accessToken, session.accessToken),
+    persistOptionalToken(storageKeys.refreshToken, session.refreshToken),
   ]);
-
-  await removeLegacyTokenStorage();
 };
 
 const clearPersistedSession = async () => {
@@ -60,9 +66,20 @@ const clearPersistedSession = async () => {
   ]);
 };
 
-export const useAuth = () => {
-  const { showDynamicIsland } = useDynamicIsland();
+const goToOtpScreen = (ticket: AuthOtpTicket) => {
+  router.push({
+    pathname: "/(auth)/otp",
+    params: {
+      identifier: ticket.identifier,
+      email: ticket.email || ticket.identifier,
+      purpose: ticket.purpose,
+      otpToken: ticket.otpToken || "",
+      sessionId: ticket.sessionId || "",
+    },
+  });
+};
 
+export const useAuth = () => {
   const userId = useAuthStore((state) => state.userId);
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -77,8 +94,6 @@ export const useAuth = () => {
     const storedUser = safeParseUser(
       await secureStorage.getItem(storageKeys.authUser),
     );
-
-    await removeLegacyTokenStorage();
 
     if (storedUserId && storedUser) {
       setSession({
@@ -99,38 +114,22 @@ export const useAuth = () => {
 
   const loginMutation = useMutation<AuthOtpTicket, Error, LoginPayload>({
     mutationFn: (payload) => authService.login(payload),
-    onSuccess: (ticket) => {
-      router.push({
-        pathname: "/(auth)/otp",
-        params: {
-          identifier: ticket.identifier,
-          email: ticket.email || ticket.identifier,
-          purpose: ticket.purpose,
-        },
-      });
-    },
+    onSuccess: goToOtpScreen,
   });
 
   const registerMutation = useMutation<AuthOtpTicket, Error, RegisterPayload>({
     mutationFn: (payload) => authService.register(payload),
-    onSuccess: (ticket) => {
-      router.replace({
-        pathname: "/(auth)/login",
-        params: {
-          registered: "1",
-          email: ticket.email || ticket.identifier,
-        },
-      });
+    onSuccess: goToOtpScreen,
+  });
 
-      setTimeout(() => {
-        showDynamicIsland({
-          variant: "success",
-          title: "Registrasi berhasil",
-          message: "Silakan login untuk menerima kode OTP.",
-          durationMs: 3600,
-        });
-      }, 250);
-    },
+  const googleLoginMutation = useMutation<AuthOtpTicket, Error>({
+    mutationFn: () => signInWithGoogle(),
+    onSuccess: goToOtpScreen,
+  });
+
+  const googleRegisterMutation = useMutation<AuthOtpTicket, Error>({
+    mutationFn: () => signUpWithGoogle(),
+    onSuccess: goToOtpScreen,
   });
 
   const verifyOtpMutation = useMutation<
@@ -155,6 +154,7 @@ export const useAuth = () => {
     } catch {
       // Tetap logout lokal walaupun API logout gagal.
     } finally {
+      await signOutFromGoogle();
       await clearPersistedSession();
       clearSession();
       router.replace("/(auth)/login");
@@ -176,6 +176,14 @@ export const useAuth = () => {
     register: registerMutation.mutateAsync,
     registerLoading: registerMutation.isPending,
     registerError: registerMutation.error,
+
+    loginWithGoogle: googleLoginMutation.mutateAsync,
+    loginWithGoogleLoading: googleLoginMutation.isPending,
+    loginWithGoogleError: googleLoginMutation.error,
+
+    registerWithGoogle: googleRegisterMutation.mutateAsync,
+    registerWithGoogleLoading: googleRegisterMutation.isPending,
+    registerWithGoogleError: googleRegisterMutation.error,
 
     verifyOtp: verifyOtpMutation.mutateAsync,
     verifyOtpLoading: verifyOtpMutation.isPending,

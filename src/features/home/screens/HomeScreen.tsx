@@ -9,6 +9,7 @@ import {
 import {
   FlatList,
   Image,
+  Modal,
   Pressable,
   RefreshControl,
   StatusBar,
@@ -26,6 +27,7 @@ import { appImages } from "@/constants/assets";
 import { colors } from "@/theme";
 
 import { CategoryCard } from "../components/CategoryCard";
+import { FlightTicketScreen } from "../components/FlightTicket";
 import { HomeHeader } from "../components/HomeHeader";
 import { SectionTitle } from "../components/SectionTitle";
 import { TopDealCard } from "../components/TopDeal";
@@ -154,6 +156,7 @@ export function HomeScreen() {
 
   const [visibleDealCount, setVisibleDealCount] = useState(TOP_DEAL_PAGE_SIZE);
   const [isLoadingMoreDeals, setIsLoadingMoreDeals] = useState(false);
+  const [isFlightTicketOpen, setIsFlightTicketOpen] = useState(false);
 
   const categories = useMemo(() => data?.categories ?? [], [data?.categories]);
   const myTrips = useMemo(() => data?.myTrips ?? [], [data?.myTrips]);
@@ -213,8 +216,20 @@ export function HomeScreen() {
     // TODO: Hubungkan ke profile screen setelah route tersedia.
   }, []);
 
-  const handleCategoryPress = useCallback((_item: TravelCategory) => {
+  const handleCategoryPress = useCallback((item: TravelCategory) => {
+    const categoryId = sanitizeText(item?.id, "").toLowerCase();
+
+    if (categoryId === "flight") {
+      setIsFlightTicketOpen(true);
+      return;
+    }
+
     // TODO: Hubungkan ke category detail setelah route tersedia.
+  }, []);
+
+
+  const handleCloseFlightTicket = useCallback(() => {
+    setIsFlightTicketOpen(false);
   }, []);
 
   const handleTripPress = useCallback((_item: TripCardType) => {
@@ -469,60 +484,72 @@ export function HomeScreen() {
   }
 
   return (
-    <Screen edges={["left", "right"]} statusBarStyle="light-content">
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor={colors.primary}
-        translucent={false}
-      />
+    <>
+      <Screen edges={["left", "right"]} statusBarStyle="light-content">
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor={colors.primary}
+          translucent={false}
+        />
 
-      <FlatList
-        style={styles.list}
-        data={topDealRows}
-        keyExtractor={(item) => item.id}
-        renderItem={renderTopDealRow}
-        ListHeaderComponent={headerComponent}
-        ListEmptyComponent={
-          <View style={styles.topDealsList}>
-            <View style={styles.listEmptyCard}>
-              <Text style={styles.listEmptyText}>Top deals belum tersedia.</Text>
+        <FlatList
+          style={styles.list}
+          data={topDealRows}
+          keyExtractor={(item) => item.id}
+          renderItem={renderTopDealRow}
+          ListHeaderComponent={headerComponent}
+          ListEmptyComponent={
+            <View style={styles.topDealsList}>
+              <View style={styles.listEmptyCard}>
+                <Text style={styles.listEmptyText}>Top deals belum tersedia.</Text>
+              </View>
             </View>
-          </View>
-        }
-        ListFooterComponent={
-          <View style={styles.topDealsFooter}>
-            {isLoadingMoreDeals ? (
-              <Text style={styles.topDealsFooterText}>Memuat promo...</Text>
-            ) : hasMoreTopDeals ? (
-              <Text style={styles.topDealsFooterText}>
-                Scroll untuk memuat promo lainnya
-              </Text>
-            ) : (
-              <Text style={styles.topDealsFooterText}>
-                Semua promo sudah ditampilkan
-              </Text>
-            )}
+          }
+          ListFooterComponent={
+            <View style={styles.topDealsFooter}>
+              {isLoadingMoreDeals ? (
+                <Text style={styles.topDealsFooterText}>Memuat promo...</Text>
+              ) : hasMoreTopDeals ? (
+                <Text style={styles.topDealsFooterText}>
+                  Scroll untuk memuat promo lainnya
+                </Text>
+              ) : (
+                <Text style={styles.topDealsFooterText}>
+                  Semua top deals sudah ditampilkan
+                </Text>
+              )}
 
-            <View style={styles.bottomSpacer} />
-          </View>
-        }
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-        onEndReached={handleLoadMoreDeals}
-        onEndReachedThreshold={0.45}
-        initialNumToRender={4}
-        maxToRenderPerBatch={4}
-        windowSize={7}
-        removeClippedSubviews
-        refreshControl={
-          <RefreshControl
-            refreshing={isFetching}
-            tintColor={colors.primary}
-            colors={[colors.primary]}
-            onRefresh={handleRefresh}
-          />
-        }
-      />
-    </Screen>
+              <View style={styles.bottomSpacer} />
+            </View>
+          }
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+          onEndReached={handleLoadMoreDeals}
+          onEndReachedThreshold={0.45}
+          initialNumToRender={4}
+          maxToRenderPerBatch={4}
+          windowSize={7}
+          removeClippedSubviews
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+              onRefresh={handleRefresh}
+            />
+          }
+        />
+      </Screen>
+
+      <Modal
+        visible={isFlightTicketOpen}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        statusBarTranslucent={false}
+        onRequestClose={handleCloseFlightTicket}
+      >
+        <FlightTicketScreen onClose={handleCloseFlightTicket} />
+      </Modal>
+    </>
   );
 }

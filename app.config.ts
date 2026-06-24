@@ -6,6 +6,8 @@ const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL ??
   "https://backend-super-apps-travel-96zp.vercel.app/api/v1";
 
+const PROJECT_ID = "6f8b4f52-f6c2-4a9b-9c3d-bb4d633f1994";
+
 const config: ExpoConfig = {
   name: process.env.EXPO_PUBLIC_APP_NAME ?? "Vayara",
   slug: "vayara-app",
@@ -28,6 +30,14 @@ const config: ExpoConfig = {
       foregroundImage: "./assets/images/adaptive-icon.png",
       backgroundColor: "#FFF8EC",
     },
+  },
+
+  updates: {
+    url: `https://u.expo.dev/${PROJECT_ID}`,
+  },
+
+  runtimeVersion: {
+    policy: "appVersion",
   },
 
   plugins: [
@@ -54,13 +64,11 @@ const config: ExpoConfig = {
   extra: {
     appName: process.env.EXPO_PUBLIC_APP_NAME ?? "Vayara",
     appEnv: process.env.EXPO_PUBLIC_APP_ENV ?? "development",
-    apiBaseUrl:
-      process.env.EXPO_PUBLIC_API_BASE_URL ??
-      "https://backend-super-apps-travel-96zp.vercel.app/api/v1",
+    apiBaseUrl: API_BASE_URL,
     apiTimeoutMs: Number(process.env.EXPO_PUBLIC_API_TIMEOUT_MS ?? 30000),
 
     eas: {
-      projectId: "6f8b4f52-f6c2-4a9b-9c3d-bb4d633f1994",
+      projectId: PROJECT_ID,
     },
   },
 };

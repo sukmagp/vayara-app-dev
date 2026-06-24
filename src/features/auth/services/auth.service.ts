@@ -1,3 +1,5 @@
+import type { AxiosError } from "axios";
+
 import type { ApiResponse } from "@/services/api/api.types";
 import { apiClient } from "@/services/api/apiClient";
 
@@ -9,6 +11,7 @@ import type {
   LoginPayload,
   RegisterPayload,
   VerifyOtpPayload,
+  VerifyOtpPurpose,
   VerifyOtpResult,
 } from "../types/auth.types";
 
@@ -22,6 +25,14 @@ const getString = (value: unknown, fallback = "") => {
   return typeof value === "string" && value.trim() ? value.trim() : fallback;
 };
 
+const getNumberString = (value: unknown, fallback = "") => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  return getString(value, fallback);
+};
+
 const unwrapApiResponse = <T>(payload: ApiResponse<T> | T): T => {
   if (isRecord(payload) && "data" in payload) {
     return payload.data as T;
@@ -30,8 +41,44 @@ const unwrapApiResponse = <T>(payload: ApiResponse<T> | T): T => {
   return payload as T;
 };
 
+const getResponseData = (payload: unknown) => {
+  if (isRecord(payload) && "data" in payload) {
+    return payload.data;
+  }
+
+  return payload;
+};
+
+const getResponseMessage = (payload: unknown, data: unknown, fallback = "") => {
+  return (
+    (isRecord(payload) ? getString(payload.message) : "") ||
+    (isRecord(data) ? getString(data.message) : "") ||
+    fallback
+  );
+};
+
+const getHttpStatus = (error: unknown) => {
+  const maybeAxiosError = error as AxiosError | undefined;
+  return Number(maybeAxiosError?.response?.status || 0);
+};
+
+const shouldFallbackVerifyEndpoint = (error: unknown) => {
+  return [404, 405, 501].includes(getHttpStatus(error));
+};
+
 const isMaskedIdentifier = (value: string) => {
-  return value.includes("***") || value.includes("*");
+  return value.includes("***") || value.includes("*") || value.includes("•");
+};
+
+const getRecordValue = (record: unknown, keys: string[], fallback = "") => {
+  if (!isRecord(record)) return fallback;
+
+  for (const key of keys) {
+    const value = getString(record[key]) || getNumberString(record[key]);
+    if (value) return value;
+  }
+
+  return fallback;
 };
 
 const normalizeUser = (raw: unknown, fallbackUserId = ""): AuthUser => {
@@ -45,32 +92,27 @@ const normalizeUser = (raw: unknown, fallbackUserId = ""): AuthUser => {
     };
   }
 
-  const id =
-    getString(raw.id) ||
-    getString(raw.user_id) ||
-    getString(raw.userId) ||
-    fallbackUserId;
+  const id = getRecordValue(raw, ["id", "user_id", "userId"], fallbackUserId);
 
-  const firstName = getString(raw.first_name) || getString(raw.firstName);
-  const lastName = getString(raw.last_name) || getString(raw.lastName);
+  const firstName = getRecordValue(raw, ["first_name", "firstName"]);
+  const lastName = getRecordValue(raw, ["last_name", "lastName"]);
 
-  const fullName =
-    getString(raw.full_name) ||
-    getString(raw.fullName) ||
-    getString(raw.display_name) ||
-    getString(raw.displayName) ||
-    getString(raw.name);
+  const fullName = getRecordValue(raw, [
+    "full_name",
+    "fullName",
+    "display_name",
+    "displayName",
+    "name",
+  ]);
 
   return {
     id,
     fullName:
       fullName || [firstName, lastName].filter(Boolean).join(" ") || "User",
-    email: getString(raw.email),
-    username: getString(raw.username) || null,
+    email: getRecordValue(raw, ["email", "user_email", "userEmail"]),
+    username: getRecordValue(raw, ["username"]) || null,
     avatarUrl:
-      getString(raw.avatar_url) ||
-      getString(raw.avatarUrl) ||
-      getString(raw.picture) ||
+      getRecordValue(raw, ["avatar_url", "avatarUrl", "picture", "photo"]) ||
       null,
   };
 };
@@ -83,14 +125,8 @@ const normalizeAuthSession = (raw: unknown): AuthResponse => {
   const rawUser = raw.user || raw.User || raw.profile || raw.account || raw;
 
   const userId =
-    getString(raw.user_id) ||
-    getString(raw.userId) ||
-    getString(raw.id) ||
-    (isRecord(rawUser)
-      ? getString(rawUser.id) ||
-        getString(rawUser.user_id) ||
-        getString(rawUser.userId)
-      : "");
+    getRecordValue(raw, ["user_id", "userId", "id"]) ||
+    getRecordValue(rawUser, ["id", "user_id", "userId"]);
 
   if (!userId) {
     throw new Error("Session login tidak valid. User ID tidak ditemukan.");
@@ -99,46 +135,94 @@ const normalizeAuthSession = (raw: unknown): AuthResponse => {
   return {
     userId,
     user: normalizeUser(rawUser, userId),
+    accessToken:
+      getRecordValue(raw, [
+        "token",
+        "accessToken",
+        "access_token",
+        "jwt",
+        "access",
+      ]) || null,
+    refreshToken:
+      getRecordValue(raw, ["refreshToken", "refresh_token", "refresh"]) ||
+      null,
   };
 };
 
+const normalizePurpose = (value: unknown, fallback: VerifyOtpPurpose) => {
+  return getString(value).toLowerCase() === "register" ? "register" : fallback;
+};
+
 const normalizeOtpTicket = (
-  raw: unknown,
+  rawPayload: unknown,
   fallbackIdentifier: string,
-  purpose: "login" | "register",
+  fallbackPurpose: VerifyOtpPurpose,
 ): AuthOtpTicket => {
   const safeIdentifier = fallbackIdentifier.trim();
+  const data = getResponseData(rawPayload);
 
-  if (!isRecord(raw)) {
+  if (!isRecord(data)) {
     return {
       identifier: safeIdentifier,
       email: safeIdentifier,
-      message: "OTP berhasil dikirim.",
-      purpose,
+      message: getResponseMessage(rawPayload, data, "OTP berhasil dikirim."),
+      purpose: fallbackPurpose,
     };
   }
 
-  const responseIdentifier = getString(raw.identifier);
-  const responseEmail = getString(raw.email) || getString(raw.user_email);
+  const responseIdentifier = getRecordValue(data, [
+    "identifier",
+    "username",
+    "email",
+    "user_email",
+    "userEmail",
+  ]);
+
+  const responseEmail = getRecordValue(data, [
+    "email",
+    "user_email",
+    "userEmail",
+  ]);
 
   const identifier =
     responseIdentifier && !isMaskedIdentifier(responseIdentifier)
       ? responseIdentifier
       : safeIdentifier;
 
+  const otpToken = getRecordValue(data, [
+    "otpToken",
+    "otp_token",
+    "otpTicket",
+    "otp_ticket",
+    "ticket",
+    "challengeToken",
+    "challenge_token",
+  ]);
+
+  const sessionId = getRecordValue(data, [
+    "sessionId",
+    "session_id",
+    "challengeId",
+    "challenge_id",
+  ]);
+
   return {
     identifier,
-    email: responseEmail || safeIdentifier,
-    message: getString(raw.message, "OTP berhasil dikirim."),
-    purpose,
+    email: responseEmail || identifier || safeIdentifier,
+    message: getResponseMessage(rawPayload, data, "OTP berhasil dikirim."),
+    purpose: normalizePurpose(data.purpose, fallbackPurpose),
+    otpToken: otpToken || undefined,
+    sessionId: sessionId || undefined,
   };
 };
 
 const normalizeVerifyOtpResult = (raw: unknown): VerifyOtpResult => {
-  if (!isRecord(raw)) {
+  const data = getResponseData(raw);
+
+  if (!isRecord(data)) {
     return {
       verified: false,
-      message: "OTP tidak valid.",
+      message: getResponseMessage(raw, data, "OTP tidak valid."),
       session: null,
     };
   }
@@ -146,15 +230,34 @@ const normalizeVerifyOtpResult = (raw: unknown): VerifyOtpResult => {
   let session: AuthResponse | null = null;
 
   try {
-    session = normalizeAuthSession(raw.session || raw.auth || raw.user || raw);
+    session = normalizeAuthSession(data.session || data.auth || data.user || data);
   } catch {
     session = null;
   }
 
   return {
-    verified: Boolean(raw.verified ?? raw.success ?? session),
-    message: getString(raw.message, session ? "Verifikasi OTP berhasil." : ""),
+    verified: Boolean(data.verified ?? data.success ?? session),
+    message: getResponseMessage(
+      raw,
+      data,
+      session ? "Verifikasi OTP berhasil." : "OTP tidak valid.",
+    ),
     session,
+  };
+};
+
+const buildVerifyOtpPayload = (payload: VerifyOtpPayload) => {
+  const identifier = payload.identifier.trim();
+  const otp = payload.otp.trim();
+
+  return {
+    identifier,
+    otp,
+    purpose: payload.purpose || "login",
+    otpToken: payload.otpToken,
+    otp_token: payload.otpToken,
+    sessionId: payload.sessionId,
+    session_id: payload.sessionId,
   };
 };
 
@@ -167,9 +270,7 @@ export const authService = {
       password: payload.password,
     });
 
-    const data = unwrapApiResponse(response.data);
-
-    return normalizeOtpTicket(data, identifier, "login");
+    return normalizeOtpTicket(response.data, identifier, "login");
   },
 
   register: async (payload: RegisterPayload): Promise<AuthOtpTicket> => {
@@ -208,38 +309,53 @@ export const authService = {
       },
     );
 
-    const data = unwrapApiResponse(response.data);
-
-    return normalizeOtpTicket(data, email, "register");
+    return normalizeOtpTicket(response.data, email, "register");
   },
 
-  googleLogin: async (payload: GoogleLoginPayload): Promise<AuthResponse> => {
+  googleLogin: async (payload: GoogleLoginPayload): Promise<AuthOtpTicket> => {
     const response = await apiClient.post<ApiResponse<unknown>>(
-      "/auth/google-login",
+      "/auth/google/callback",
       {
         idToken: payload.idToken,
+        id_token: payload.idToken,
+        purpose: "login",
+        platform: "mobile",
       },
     );
 
-    const data = unwrapApiResponse(response.data);
-
-    return normalizeAuthSession(data);
+    return normalizeOtpTicket(response.data, "", "login");
   },
 
   verifyOtp: async (payload: VerifyOtpPayload): Promise<VerifyOtpResult> => {
-    const identifier = payload.identifier.trim();
+    const purpose: VerifyOtpPurpose =
+      payload.purpose === "register" ? "register" : "login";
 
-    const response = await apiClient.post<ApiResponse<unknown>>(
-      "/auth/login/verify-otp",
-      {
-        identifier,
-        otp: payload.otp.trim(),
-      },
-    );
+    const endpoints =
+      purpose === "register"
+        ? ["/auth/register/verify-otp", "/auth/login/verify-otp"]
+        : ["/auth/login/verify-otp"];
 
-    const data = unwrapApiResponse(response.data);
+    const body = buildVerifyOtpPayload({ ...payload, purpose });
+    let lastError: unknown = null;
 
-    return normalizeVerifyOtpResult(data);
+    for (const endpoint of endpoints) {
+      try {
+        const response = await apiClient.post<ApiResponse<unknown>>(
+          endpoint,
+          body,
+        );
+
+        return normalizeVerifyOtpResult(response.data);
+      } catch (error) {
+        lastError = error;
+
+        if (!shouldFallbackVerifyEndpoint(error)) {
+          throw error;
+        }
+      }
+    }
+
+    throw lastError;
   },
 
   logout: async () => {

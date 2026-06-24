@@ -45,23 +45,31 @@ export type RegisterPayload = {
   name_jabatan: string;
 };
 
+export type VerifyOtpPurpose = "login" | "register";
+
 export type VerifyOtpPayload = {
   identifier: string;
   otp: string;
+  purpose?: VerifyOtpPurpose;
+  otpToken?: string;
+  sessionId?: string;
 };
-
-export type VerifyOtpPurpose = "login" | "register";
 
 export type AuthOtpTicket = {
   identifier: string;
   email?: string;
   message: string;
   purpose: VerifyOtpPurpose;
+  otpToken?: string;
+  sessionId?: string;
+  callbackParams?: Record<string, string>;
 };
 
 export type AuthResponse = {
   userId: string;
   user: AuthUser;
+  accessToken?: string | null;
+  refreshToken?: string | null;
 };
 
 export type VerifyOtpResult = {

@@ -1,11 +1,16 @@
-import { Platform } from "react-native";
+import * as Linking from "expo-linking";
+import * as WebBrowser from "expo-web-browser";
 
 import { env } from "@/config/env";
 
-type GoogleSigninModule = typeof import("@react-native-google-signin/google-signin");
+import type { AuthOtpTicket, VerifyOtpPurpose } from "../types/auth.types";
 
-let isConfigured = false;
-let googleModulePromise: Promise<GoogleSigninModule> | null = null;
+WebBrowser.maybeCompleteAuthSession();
+
+const GOOGLE_REDIRECT_PATH = "auth/google";
+const MAX_CALLBACK_PARAM_LENGTH = 2048;
+
+type CallbackParamValue = string | string[] | undefined | null;
 
 export class GoogleAuthError extends Error {
   code?: string;
@@ -17,133 +22,216 @@ export class GoogleAuthError extends Error {
   }
 }
 
-const isNativeModuleMissingError = (error: unknown) => {
-  const message =
-    error instanceof Error ? error.message : typeof error === "string" ? error : "";
-
-  return (
-    message.includes("RNGoogleSignin") ||
-    message.includes("TurboModuleRegistry") ||
-    message.includes("NativeGoogleSignin")
-  );
+const getString = (value: unknown, fallback = "") => {
+  return typeof value === "string" && value.trim() ? value.trim() : fallback;
 };
 
-const loadGoogleSigninModule = async () => {
-  try {
-    if (!googleModulePromise) {
-      googleModulePromise = import("@react-native-google-signin/google-signin");
-    }
+const sanitizeParam = (value: CallbackParamValue, fallback = "") => {
+  const rawValue = Array.isArray(value) ? value[0] : value;
 
-    return await googleModulePromise;
-  } catch (error) {
-    googleModulePromise = null;
+  if (typeof rawValue !== "string") return fallback;
 
-    if (isNativeModuleMissingError(error)) {
-      throw new GoogleAuthError(
-        "Google Sign-In belum tersedia di native app ini. Gunakan Development Build/EAS Build, bukan Expo Go.",
-        "NATIVE_MODULE_UNAVAILABLE",
-      );
-    }
-
-    throw new GoogleAuthError("Gagal memuat Google Sign-In.", "MODULE_LOAD_FAILED");
-  }
+  return rawValue
+    .trim()
+    .replace(/[\u0000-\u001F\u007F]/g, "")
+    .slice(0, MAX_CALLBACK_PARAM_LENGTH);
 };
 
-export const configureGoogleAuth = async () => {
-  const googleModule = await loadGoogleSigninModule();
+const normalizeApiBaseUrl = () => {
+  const rawBaseUrl = getString(env.apiBaseUrl);
 
-  if (isConfigured) return googleModule;
-
-  if (!env.googleWebClientId) {
+  if (!rawBaseUrl) {
     throw new GoogleAuthError(
-      "Google Web Client ID belum dikonfigurasi di env.",
-      "MISSING_GOOGLE_WEB_CLIENT_ID",
+      "Base URL API belum dikonfigurasi di env.",
+      "MISSING_API_BASE_URL",
     );
   }
 
-  googleModule.GoogleSignin.configure({
-    webClientId: env.googleWebClientId,
-    iosClientId: env.googleIosClientId || undefined,
-    offlineAccess: false,
-    forceCodeForRefreshToken: false,
+  return rawBaseUrl.replace(/\/+$/g, "");
+};
+
+export const createMobileRedirectUri = () => {
+  return Linking.createURL(GOOGLE_REDIRECT_PATH);
+};
+
+const createBackendGoogleAuthUrl = (purpose: VerifyOtpPurpose) => {
+  const baseUrl = normalizeApiBaseUrl();
+  const mobileRedirectUri = createMobileRedirectUri();
+
+  const params = new URLSearchParams();
+  params.set("purpose", purpose);
+  params.set("platform", "mobile");
+
+  /**
+   * Beberapa alias dikirim supaya backend bisa mengambil salah satu tanpa
+   * memecah kompatibilitas endpoint lama.
+   */
+  params.set("mobileRedirectUri", mobileRedirectUri);
+  params.set("redirectUri", mobileRedirectUri);
+  params.set("callbackUrl", mobileRedirectUri);
+  params.set("returnTo", mobileRedirectUri);
+
+  return `${baseUrl}/auth/google?${params.toString()}`;
+};
+
+const appendSearchParams = (target: Record<string, string>, rawParams = "") => {
+  if (!rawParams) return;
+
+  const params = new URLSearchParams(rawParams.replace(/^[?#]/, ""));
+
+  params.forEach((value, key) => {
+    target[key] = sanitizeParam(value);
   });
+};
 
-  isConfigured = true;
+const parseCallbackParams = (callbackUrl: string) => {
+  const params: Record<string, string> = {};
 
-  return googleModule;
+  try {
+    const parsedUrl = new URL(callbackUrl);
+
+    parsedUrl.searchParams.forEach((value, key) => {
+      params[key] = sanitizeParam(value);
+    });
+
+    appendSearchParams(params, parsedUrl.hash);
+
+    return params;
+  } catch {
+    const queryString = callbackUrl.split("?")[1]?.split("#")[0] || "";
+    const hashString = callbackUrl.split("#")[1] || "";
+
+    appendSearchParams(params, queryString);
+    appendSearchParams(params, hashString);
+
+    return params;
+  }
+};
+
+const normalizePurpose = (
+  value: unknown,
+  fallbackPurpose: VerifyOtpPurpose,
+): VerifyOtpPurpose => {
+  return getString(value).toLowerCase() === "register"
+    ? "register"
+    : fallbackPurpose;
+};
+
+const getFirstParam = (
+  params: Record<string, string>,
+  keys: string[],
+  fallback = "",
+) => {
+  for (const key of keys) {
+    const value = getString(params[key]);
+    if (value) return value;
+  }
+
+  return fallback;
+};
+
+const normalizeCallbackResult = (
+  callbackUrl: string,
+  fallbackPurpose: VerifyOtpPurpose,
+): AuthOtpTicket => {
+  const callbackParams = parseCallbackParams(callbackUrl);
+
+  const status = getString(callbackParams.status).toLowerCase();
+  const errorCode = getFirstParam(callbackParams, ["error", "code"]);
+  const errorMessage = getFirstParam(callbackParams, [
+    "message",
+    "error_description",
+    "errorMessage",
+    "error_message",
+  ]);
+
+  if (errorCode || status === "error" || status === "failed") {
+    throw new GoogleAuthError(
+      errorMessage || "Login Google gagal.",
+      errorCode || "GOOGLE_CALLBACK_ERROR",
+    );
+  }
+
+  const email = getFirstParam(callbackParams, [
+    "email",
+    "user_email",
+    "userEmail",
+    "identifier",
+  ]);
+
+  const identifier = getFirstParam(
+    callbackParams,
+    ["identifier", "username", "email", "user_email", "userEmail"],
+    email,
+  );
+
+  if (!identifier) {
+    throw new GoogleAuthError(
+      "Google berhasil, tetapi email atau identifier OTP tidak dikirim oleh server.",
+      "MISSING_GOOGLE_OTP_IDENTIFIER",
+    );
+  }
+
+  const otpToken = getFirstParam(callbackParams, [
+    "otpToken",
+    "otp_token",
+    "otpTicket",
+    "otp_ticket",
+    "ticket",
+    "challengeToken",
+    "challenge_token",
+  ]);
+
+  const sessionId = getFirstParam(callbackParams, [
+    "sessionId",
+    "session_id",
+    "challengeId",
+    "challenge_id",
+  ]);
+
+  return {
+    identifier,
+    email: email || identifier,
+    message: errorMessage || "OTP berhasil dikirim.",
+    purpose: normalizePurpose(callbackParams.purpose, fallbackPurpose),
+    otpToken: otpToken || undefined,
+    sessionId: sessionId || undefined,
+    callbackParams,
+  };
+};
+
+const startGoogleAuthWithBackend = async (purpose: VerifyOtpPurpose) => {
+  const authUrl = createBackendGoogleAuthUrl(purpose);
+  const redirectUri = createMobileRedirectUri();
+
+  const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
+
+  if (result.type === "cancel" || result.type === "dismiss") {
+    throw new GoogleAuthError("Login Google dibatalkan.", "SIGN_IN_CANCELLED");
+  }
+
+  if (result.type !== "success" || !result.url) {
+    throw new GoogleAuthError("Login Google gagal.", "GOOGLE_AUTH_FAILED");
+  }
+
+  return normalizeCallbackResult(result.url, purpose);
+};
+
+export const configureGoogleAuth = async () => {
+  normalizeApiBaseUrl();
 };
 
 export const signInWithGoogle = async () => {
-  const googleModule = await configureGoogleAuth();
-  const { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } =
-    googleModule;
+  return startGoogleAuthWithBackend("login");
+};
 
-  try {
-    if (Platform.OS === "android") {
-      await GoogleSignin.hasPlayServices({
-        showPlayServicesUpdateDialog: true,
-      });
-    }
-
-    const response = await GoogleSignin.signIn();
-
-    if (!isSuccessResponse(response)) {
-      throw new GoogleAuthError("Login Google dibatalkan.", "SIGN_IN_CANCELLED");
-    }
-
-    const idToken = response.data.idToken;
-
-    if (!idToken) {
-      throw new GoogleAuthError(
-        "Google ID token tidak tersedia. Pastikan Web Client ID sudah benar.",
-        "GOOGLE_ID_TOKEN_EMPTY",
-      );
-    }
-
-    return {
-      idToken,
-      user: response.data.user,
-    };
-  } catch (error) {
-    if (error instanceof GoogleAuthError) {
-      throw error;
-    }
-
-    if (isNativeModuleMissingError(error)) {
-      throw new GoogleAuthError(
-        "Google Sign-In belum tersedia di native app ini. Gunakan Development Build/EAS Build, bukan Expo Go.",
-        "NATIVE_MODULE_UNAVAILABLE",
-      );
-    }
-
-    if (isErrorWithCode(error)) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        throw new GoogleAuthError("Login Google dibatalkan.", error.code);
-      }
-
-      if (error.code === statusCodes.IN_PROGRESS) {
-        throw new GoogleAuthError("Login Google sedang diproses.", error.code);
-      }
-
-      if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        throw new GoogleAuthError(
-          "Google Play Services tidak tersedia atau perlu diperbarui.",
-          error.code,
-        );
-      }
-
-      throw new GoogleAuthError("Login Google gagal.", error.code);
-    }
-
-    throw new GoogleAuthError("Login Google gagal.", "UNKNOWN_GOOGLE_ERROR");
-  }
+export const signUpWithGoogle = async () => {
+  return startGoogleAuthWithBackend("register");
 };
 
 export const signOutFromGoogle = async () => {
-  try {
-    const googleModule = await configureGoogleAuth();
-    await googleModule.GoogleSignin.signOut();
-  } catch {
-    // Silent by design: logout lokal tetap harus jalan.
-  }
+  /**
+   * Auth berbasis browser session. Logout utama cukup membersihkan session lokal
+   * aplikasi. Browser session Google tidak dipaksa sign out agar UX tetap aman.
+   */
 };
