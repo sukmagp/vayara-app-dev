@@ -1,15 +1,17 @@
 import { appImages } from "@/constants/assets";
-import { colors } from "@/theme";
+import { colors, getThemeColors } from "@/theme";
 import { Ionicons } from "@expo/vector-icons";
+import { useMemo } from "react";
 import {
   ImageBackground,
-  ImageSourcePropType,
   Pressable,
   Text,
+  useColorScheme,
   View,
+  type ImageSourcePropType,
 } from "react-native";
 import type { PromoCard as PromoCardType } from "../../types/home.types";
-import { styles } from "./PromoCard.styles";
+import { createStyles } from "./PromoCard.styles";
 
 type PromoCardProps = {
   item: PromoCardType;
@@ -41,11 +43,16 @@ const resolveImageSource = (
   return fallback;
 };
 
-export function PromoCard({ item, onPress }: PromoCardProps) {
+export function PromoCard({ item, variant = "banner", onPress }: PromoCardProps) {
+  const deviceMode = useColorScheme();
+  const theme = getThemeColors(deviceMode === "dark" ? "dark" : "light") as typeof colors;
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
   const imageSource = resolveImageSource(item, appImages.onboardingOne);
 
   const safeTitle = sanitizeText(item?.title, "Destinasi");
   const safeSubtitle = sanitizeText(item?.subtitle, "Rekomendasi perjalanan");
+  const badgeLabel = variant === "deal" ? "Promo Cozy" : "Pilihan Vayara";
 
   return (
     <Pressable
@@ -65,8 +72,8 @@ export function PromoCard({ item, onPress }: PromoCardProps) {
       >
         <View style={styles.overlay}>
           <View style={styles.badge}>
-            <Ionicons name="sparkles-outline" size={12} color={colors.primary} />
-            <Text style={styles.badgeText}>Pilihan Vayara</Text>
+            <Ionicons name="sparkles-outline" size={12} color={colors.primaryDark} />
+            <Text style={styles.badgeText}>{badgeLabel}</Text>
           </View>
 
           <View style={styles.copy}>

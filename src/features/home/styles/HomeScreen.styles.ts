@@ -1,221 +1,260 @@
 import { colors, spacing } from "@/theme";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
-  centerContent: {
-    justifyContent: "center",
-    paddingHorizontal: spacing.xl,
-  },
+type ThemeColors = typeof colors;
 
-  list: {
-    flex: 1,
-    backgroundColor: "#FFF8EE",
-  },
+const createFloatingShadow = (theme: ThemeColors, opacity = 0.12, elevation = 4) =>
+  Platform.select({
+    ios: {
+      shadowColor: theme.shadow,
+      shadowOpacity: opacity,
+      shadowRadius: 18,
+      shadowOffset: { width: 0, height: 12 },
+    },
+    android: {
+      elevation,
+    },
+    default: {},
+  });
 
-  content: {
-    paddingBottom: 116,
-    backgroundColor: "#FFF8EE",
-  },
+export const createStyles = (theme: ThemeColors = colors) => {
+  const floatingShadow = createFloatingShadow(theme);
+  const softShadow = createFloatingShadow(theme, 0.08, 2);
 
-  topPanel: {
-    position: "relative",
-    paddingHorizontal: spacing.xl,
-    paddingBottom: 49,
-    backgroundColor: colors.primary,
-    borderBottomLeftRadius: 34,
-    borderBottomRightRadius: 34,
-    overflow: "hidden",
-  },
+  return StyleSheet.create({
+    centerContent: {
+      justifyContent: "center",
+      paddingHorizontal: spacing.xl,
+      backgroundColor: theme.background,
+    },
 
-  topPanelGlowOne: {
-    position: "absolute",
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    top: -70,
-    right: -48,
-    backgroundColor: "rgba(255,255,255,0.09)",
-  },
+    list: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
 
-  topPanelGlowTwo: {
-    position: "absolute",
-    width: 118,
-    height: 118,
-    borderRadius: 59,
-    bottom: -62,
-    left: -44,
-    backgroundColor: "rgba(255,255,255,0.08)",
-  },
+    content: {
+      paddingBottom: 116,
+      backgroundColor: theme.background,
+    },
 
-  categoryList: {
-    paddingTop: 22,
-    paddingRight: spacing.xl,
-  },
+    topPanel: {
+      position: "relative",
+      paddingHorizontal: spacing.xl,
+      paddingBottom: 48,
+      backgroundColor: theme.card,
+      borderBottomLeftRadius: 38,
+      borderBottomRightRadius: 38,
+      borderWidth: 1,
+      borderTopWidth: 0,
+      borderColor: theme.glassBorder,
+      overflow: "hidden",
+      ...softShadow,
+    },
 
-  body: {
-    marginTop: -31,
-    paddingHorizontal: spacing.xl,
-  },
+    topPanelGlowOne: {
+      position: "absolute",
+      width: 188,
+      height: 188,
+      borderRadius: 94,
+      top: -92,
+      right: -58,
+      backgroundColor: theme.decorTwo,
+    },
 
-  searchBox: {
-    minHeight: 48,
-    borderRadius: 17,
-    backgroundColor: "rgba(255,255,255,0.98)",
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: spacing.lg,
-    gap: spacing.sm,
-    borderWidth: 1,
-    borderColor: "rgba(15,122,120,0.08)",
-    shadowColor: colors.shadow,
-    shadowOpacity: 0.07,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 3,
-  },
+    topPanelGlowTwo: {
+      position: "absolute",
+      width: 156,
+      height: 156,
+      borderRadius: 78,
+      bottom: -78,
+      left: -50,
+      backgroundColor: theme.decorOne,
+    },
 
-  searchPressed: {
-    opacity: 0.78,
-    transform: [{ scale: 0.99 }],
-  },
+    topPanelGlowThree: {
+      position: "absolute",
+      width: 124,
+      height: 124,
+      borderRadius: 62,
+      top: 76,
+      left: "42%",
+      backgroundColor: theme.decorThree,
+    },
 
-  searchPlaceholder: {
-    flex: 1,
-    color: colors.textMuted,
-    fontSize: 14,
-    fontWeight: "800",
-  },
+    categoryList: {
+      paddingTop: 24,
+      paddingRight: spacing.xl,
+    },
 
-  headerAfterSearch: {
-    paddingTop: 6,
-  },
+    body: {
+      marginTop: -30,
+      paddingHorizontal: spacing.xl,
+    },
 
-  recommendationList: {
-    gap: spacing.md,
-    paddingRight: spacing.xl,
-  },
+    searchBox: {
+      minHeight: 52,
+      borderRadius: 21,
+      backgroundColor: theme.glassStrong,
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: spacing.lg,
+      gap: spacing.sm,
+      borderWidth: 1,
+      borderColor: theme.glassBorder,
+      ...floatingShadow,
+    },
 
-  recommendationCard: {
-    width: 256,
-    height: 168,
-    borderRadius: 24,
-    overflow: "hidden",
-    backgroundColor: "rgba(15,122,120,0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(15,122,120,0.08)",
-  },
+    searchPressed: {
+      opacity: 0.84,
+      transform: [{ scale: 0.99 }],
+    },
 
-  recommendationPressed: {
-    opacity: 0.78,
-    transform: [{ scale: 0.985 }],
-  },
+    searchPlaceholder: {
+      flex: 1,
+      color: theme.textMuted,
+      fontSize: 14,
+      fontWeight: "800",
+    },
 
-  recommendationImage: {
-    width: "100%",
-    height: "100%",
-  },
+    headerAfterSearch: {
+      paddingTop: 6,
+    },
 
-  recommendationOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: "space-between",
-    padding: spacing.lg,
-    backgroundColor: "rgba(0,0,0,0.18)",
-  },
+    recommendationList: {
+      gap: spacing.md,
+      paddingRight: spacing.xl,
+    },
 
-  recommendationBadge: {
-    alignSelf: "flex-start",
-    maxWidth: "86%",
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    backgroundColor: "rgba(255,255,255,0.9)",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
+    recommendationCard: {
+      width: 256,
+      height: 170,
+      borderRadius: 28,
+      overflow: "hidden",
+      backgroundColor: theme.primarySoft,
+      borderWidth: 1,
+      borderColor: theme.glassBorder,
+      ...floatingShadow,
+    },
 
-  recommendationBadgeText: {
-    flexShrink: 1,
-    color: colors.primary,
-    fontSize: 12,
-    fontWeight: "900",
-  },
+    recommendationPressed: {
+      opacity: 0.84,
+      transform: [{ scale: 0.985 }],
+    },
 
-  recommendationCopy: {
-    gap: 5,
-  },
+    recommendationImage: {
+      width: "100%",
+      height: "100%",
+    },
 
-  recommendationTitle: {
-    color: colors.white,
-    fontSize: 25,
-    fontWeight: "900",
-    letterSpacing: -0.35,
-  },
+    recommendationOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      justifyContent: "space-between",
+      padding: spacing.lg,
+      backgroundColor: "rgba(21, 36, 37, 0.34)",
+    },
 
-  recommendationSubtitle: {
-    color: colors.white,
-    fontSize: 14,
-    fontWeight: "900",
-    lineHeight: 18,
-  },
+    recommendationBadge: {
+      alignSelf: "flex-start",
+      maxWidth: "86%",
+      borderRadius: 999,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      backgroundColor: "rgba(255, 255, 255, 0.9)",
+      borderWidth: 1,
+      borderColor: "rgba(255, 255, 255, 0.62)",
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+    },
 
-  listEmptyCard: {
-    minHeight: 96,
-    borderRadius: 24,
-    backgroundColor: "rgba(255,255,255,0.78)",
-    borderWidth: 1,
-    borderColor: "rgba(15,122,120,0.08)",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: spacing.lg,
-  },
+    recommendationBadgeText: {
+      flexShrink: 1,
+      color: colors.primaryDark,
+      fontSize: 12,
+      fontWeight: "900",
+    },
 
-  listEmptyText: {
-    color: colors.textMuted,
-    fontSize: 13,
-    fontWeight: "800",
-    textAlign: "center",
-    lineHeight: 18,
-  },
+    recommendationCopy: {
+      gap: 5,
+    },
 
-  tripList: {
-    gap: spacing.md,
-  },
+    recommendationTitle: {
+      color: theme.white,
+      fontSize: 25,
+      fontWeight: "900",
+      letterSpacing: -0.35,
+    },
 
-  topDealsList: {
-    paddingHorizontal: spacing.xl,
-  },
+    recommendationSubtitle: {
+      color: "rgba(255, 255, 255, 0.92)",
+      fontSize: 14,
+      fontWeight: "900",
+      lineHeight: 18,
+    },
 
-  topDealsRow: {
-    flexDirection: "row",
-    marginBottom: spacing.md,
-  },
+    listEmptyCard: {
+      minHeight: 98,
+      borderRadius: 25,
+      backgroundColor: theme.card,
+      borderWidth: 1,
+      borderColor: theme.border,
+      alignItems: "center",
+      justifyContent: "center",
+      padding: spacing.lg,
+      ...floatingShadow,
+    },
 
-  topDealItem: {
-    flex: 1,
-  },
+    listEmptyText: {
+      color: theme.textMuted,
+      fontSize: 13,
+      fontWeight: "800",
+      textAlign: "center",
+      lineHeight: 18,
+    },
 
-  topDealItemSpacer: {
-    marginRight: spacing.md,
-  },
+    tripList: {
+      gap: spacing.md,
+    },
 
-  topDealPlaceholder: {
-    flex: 1,
-  },
+    topDealsList: {
+      paddingHorizontal: spacing.xl,
+    },
 
-  topDealsFooter: {
-    minHeight: 52,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+    topDealsRow: {
+      flexDirection: "row",
+      marginBottom: spacing.md,
+    },
 
-  topDealsFooterText: {
-    color: colors.textMuted,
-    fontSize: 12,
-    fontWeight: "900",
-  },
+    topDealItem: {
+      flex: 1,
+      minWidth: 0,
+    },
 
-  bottomSpacer: {
-    height: 20,
-  },
-});
+    topDealItemSpacer: {
+      marginRight: spacing.md,
+    },
+
+    topDealPlaceholder: {
+      flex: 1,
+    },
+
+    topDealsFooter: {
+      minHeight: 52,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+
+    topDealsFooterText: {
+      color: theme.textMuted,
+      fontSize: 12,
+      fontWeight: "900",
+    },
+
+    bottomSpacer: {
+      height: 20,
+    },
+  });
+};
+
+export const styles = createStyles(colors);

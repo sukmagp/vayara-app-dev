@@ -1,135 +1,155 @@
 import { colors, radius, spacing } from "@/theme";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
-  card: {
-    flex: 1,
-    overflow: "hidden",
-    borderRadius: 21,
-    backgroundColor: "rgba(255,255,255,0.95)",
-    borderWidth: 1,
-    borderColor: "rgba(15,122,120,0.08)",
-    shadowColor: colors.shadow,
-    shadowOpacity: 0.06,
-    shadowRadius: 13,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 2,
-  },
+type ThemeColors = typeof colors;
 
-  cardPressed: {
-    opacity: 0.78,
-    transform: [{ scale: 0.99 }],
-  },
+const createCardShadow = (theme: ThemeColors) =>
+  Platform.select({
+    ios: {
+      shadowColor: theme.shadow,
+      shadowOpacity: 0.1,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 10 },
+    },
+    android: {
+      elevation: 3,
+    },
+    default: {},
+  });
 
-  imageWrap: {
-    position: "relative",
-    height: 137,
-    backgroundColor: "rgba(15,122,120,0.08)",
-  },
+export const createStyles = (theme: ThemeColors = colors) => {
+  const cardShadow = createCardShadow(theme);
 
-  image: {
-    width: "100%",
-    height: "100%",
-  },
+  return StyleSheet.create({
+    card: {
+      flex: 1,
+      overflow: "hidden",
+      borderRadius: 23,
+      backgroundColor: theme.card,
+      borderWidth: 1,
+      borderColor: theme.border,
+      ...cardShadow,
+    },
 
-  tagBadge: {
-    position: "absolute",
-    left: 9,
-    top: 9,
-    maxWidth: "78%",
-    borderRadius: radius.full,
-    paddingHorizontal: 9,
-    paddingVertical: 5,
-    backgroundColor: "rgba(255,255,255,0.88)",
-  },
+    cardPressed: {
+      opacity: 0.84,
+      transform: [{ scale: 0.99 }],
+    },
 
-  tagText: {
-    color: colors.primary,
-    fontSize: 10,
-    fontWeight: "900",
-  },
+    imageWrap: {
+      position: "relative",
+      height: 138,
+      backgroundColor: theme.primarySoft,
+    },
 
-  discountBadge: {
-    position: "absolute",
-    right: 9,
-    bottom: -17,
-    minWidth: 42,
-    height: 34,
-    borderRadius: radius.full,
-    backgroundColor: colors.danger,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 8,
-    borderWidth: 3,
-    borderColor: colors.white,
-  },
+    image: {
+      width: "100%",
+      height: "100%",
+    },
 
-  discountText: {
-    color: colors.white,
-    fontSize: 12,
-    fontWeight: "900",
-  },
+    tagBadge: {
+      position: "absolute",
+      left: 9,
+      top: 9,
+      maxWidth: "78%",
+      borderRadius: radius.full,
+      paddingHorizontal: 9,
+      paddingVertical: 5,
+      backgroundColor: "rgba(255, 255, 255, 0.9)",
+      borderWidth: 1,
+      borderColor: "rgba(255, 255, 255, 0.62)",
+    },
 
-  content: {
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.md,
-  },
+    tagText: {
+      color: colors.primaryDark,
+      fontSize: 10,
+      fontWeight: "900",
+    },
 
-  title: {
-    color: colors.text,
-    fontSize: 14,
-    fontWeight: "900",
-    letterSpacing: -0.15,
-  },
+    discountBadge: {
+      position: "absolute",
+      right: 9,
+      bottom: -17,
+      minWidth: 42,
+      height: 34,
+      borderRadius: radius.full,
+      backgroundColor: theme.danger,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: 8,
+      borderWidth: 3,
+      borderColor: theme.card,
+    },
 
-  location: {
-    marginTop: 2,
-    color: colors.textMuted,
-    fontSize: 10,
-    fontWeight: "800",
-  },
+    discountText: {
+      color: theme.white,
+      fontSize: 12,
+      fontWeight: "900",
+    },
 
-  starText: {
-    marginTop: 7,
-    color: "#F5B400",
-    fontSize: 10,
-    fontWeight: "900",
-    letterSpacing: 0.7,
-  },
+    content: {
+      paddingHorizontal: spacing.md,
+      paddingTop: spacing.md,
+      paddingBottom: spacing.md,
+    },
 
-  reviewRow: {
-    marginTop: 7,
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: 3,
-  },
+    title: {
+      color: theme.text,
+      fontSize: 14,
+      fontWeight: "900",
+      letterSpacing: -0.15,
+    },
 
-  ratingText: {
-    color: colors.primary,
-    fontSize: 10,
-    fontWeight: "900",
-  },
+    location: {
+      marginTop: 2,
+      color: theme.textMuted,
+      fontSize: 10,
+      fontWeight: "800",
+    },
 
-  reviewText: {
-    color: colors.text,
-    fontSize: 10,
-    fontWeight: "700",
-  },
+    starText: {
+      marginTop: 7,
+      color: theme.warning,
+      fontSize: 10,
+      fontWeight: "900",
+      letterSpacing: 0.7,
+    },
 
-  originalPrice: {
-    marginTop: 8,
-    color: colors.textMuted,
-    fontSize: 10,
-    fontWeight: "700",
-    textDecorationLine: "line-through",
-  },
+    reviewRow: {
+      marginTop: 7,
+      flexDirection: "row",
+      alignItems: "center",
+      flexWrap: "wrap",
+      gap: 3,
+    },
 
-  price: {
-    marginTop: 3,
-    color: "#FF7A00",
-    fontSize: 13,
-    fontWeight: "900",
-  },
-});
+    ratingText: {
+      color: theme.primaryDark,
+      fontSize: 10,
+      fontWeight: "900",
+    },
+
+    reviewText: {
+      color: theme.textMuted,
+      fontSize: 10,
+      fontWeight: "700",
+    },
+
+    originalPrice: {
+      marginTop: 8,
+      color: theme.textMuted,
+      fontSize: 10,
+      fontWeight: "700",
+      textDecorationLine: "line-through",
+    },
+
+    price: {
+      marginTop: 3,
+      color: theme.accentDark,
+      fontSize: 13,
+      fontWeight: "900",
+    },
+  });
+};
+
+export const styles = createStyles(colors);

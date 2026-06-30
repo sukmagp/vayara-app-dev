@@ -1,34 +1,53 @@
 import { colors, spacing } from "@/theme";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
-  card: {
-    alignItems: "center",
-    gap: 7,
-  },
+type ThemeColors = typeof colors;
 
-  cardPressed: {
-    opacity: 0.76,
-    transform: [{ scale: 0.97 }],
-  },
+const createSoftShadow = (theme: ThemeColors) =>
+  Platform.select({
+    ios: {
+      shadowColor: theme.shadow,
+      shadowOpacity: 0.12,
+      shadowRadius: 14,
+      shadowOffset: { width: 0, height: 8 },
+    },
+    android: {
+      elevation: 3,
+    },
+    default: {},
+  });
 
-  iconWrap: {
-    backgroundColor: "rgba(255,255,255,0.96)",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.58)",
-    shadowColor: colors.shadow,
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 2,
-  },
+export const createStyles = (theme: ThemeColors = colors) => {
+  const softShadow = createSoftShadow(theme);
 
-  text: {
-    minHeight: 28,
-    paddingHorizontal: spacing.xs,
-    fontWeight: "900",
-    textAlign: "center",
-  },
-});
+  return StyleSheet.create({
+    card: {
+      alignItems: "center",
+      gap: 8,
+    },
+
+    cardPressed: {
+      opacity: 0.82,
+      transform: [{ scale: 0.97 }],
+    },
+
+    iconWrap: {
+      backgroundColor: theme.glassStrong,
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1,
+      borderColor: theme.glassBorder,
+      ...softShadow,
+    },
+
+    text: {
+      minHeight: 30,
+      paddingHorizontal: spacing.xs,
+      fontWeight: "900",
+      textAlign: "center",
+      letterSpacing: -0.1,
+    },
+  });
+};
+
+export const styles = createStyles(colors);

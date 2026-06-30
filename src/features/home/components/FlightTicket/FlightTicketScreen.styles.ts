@@ -3,7 +3,7 @@ import { Platform, StyleSheet } from "react-native";
 
 const cardShadow = Platform.select({
   ios: {
-    shadowColor: "#0B1F2A",
+    shadowColor: colors.shadow,
     shadowOpacity: 0.12,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 12 },
@@ -14,8 +14,7 @@ const cardShadow = Platform.select({
   default: {},
 });
 
-const PAGE_PADDING = 12;
-
+const PAGE_PADDING = 16;
 
 export const flightTicketStyles = StyleSheet.create({
   screen: {
@@ -47,9 +46,9 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 21,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.92)",
+    backgroundColor: colors.glassStrong,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.08)",
+    borderColor: colors.border,
   },
 
   headerTitleBlock: {
@@ -57,7 +56,7 @@ export const flightTicketStyles = StyleSheet.create({
   },
 
   headerTitle: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 22,
     fontWeight: "900",
     letterSpacing: -0.4,
@@ -65,7 +64,7 @@ export const flightTicketStyles = StyleSheet.create({
 
   headerSubtitle: {
     marginTop: 2,
-    color: "#5E6772",
+    color: colors.textMuted,
     fontSize: 12,
     fontWeight: "700",
   },
@@ -76,9 +75,9 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.9)",
+    backgroundColor: colors.glassStrong,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.08)",
+    borderColor: colors.border,
   },
 
   scrollContent: {
@@ -128,7 +127,7 @@ export const flightTicketStyles = StyleSheet.create({
 
   searchHeroShade: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 78, 77, 0.03)",
+    backgroundColor: colors.primarySoft,
   },
 
 
@@ -138,16 +137,16 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 21,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.96)",
+    backgroundColor: colors.glassStrong,
     borderWidth: 1,
-    borderColor: "rgba(23,59,58,0.08)",
+    borderColor: colors.border,
   },
 
   heroCard: {
     marginTop: 12,
     padding: 22,
     borderRadius: 34,
-    backgroundColor: "#0C6D69",
+    backgroundColor: colors.primaryDark,
     overflow: "hidden",
   },
 
@@ -158,7 +157,7 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 80,
     top: -78,
     right: -56,
-    backgroundColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "rgba(255, 255, 255, 0.16)",
   },
 
   heroGlowTwo: {
@@ -168,11 +167,11 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 60,
     bottom: -68,
     left: -40,
-    backgroundColor: "rgba(255,255,255,0.1)",
+    backgroundColor: "rgba(255, 255, 255, 0.14)",
   },
 
   heroEyebrow: {
-    color: "rgba(255,255,255,0.75)",
+    color: "rgba(255, 255, 255, 0.78)",
     fontSize: 12,
     fontWeight: "900",
     textTransform: "uppercase",
@@ -191,7 +190,7 @@ export const flightTicketStyles = StyleSheet.create({
   heroSubtitle: {
     marginTop: 8,
     width: "100%",
-    color: "rgba(255,255,255,0.84)",
+    color: "rgba(255, 255, 255, 0.88)",
     fontSize: 13,
     fontWeight: "700",
     lineHeight: 19,
@@ -223,7 +222,7 @@ export const flightTicketStyles = StyleSheet.create({
     borderLeftWidth: 0,
     borderRightWidth: 0,
     borderBottomWidth: 0,
-    borderColor: "rgba(0, 110, 109, 0.10)",
+    borderColor: colors.border,
 
     ...cardShadow,
   },
@@ -248,7 +247,7 @@ export const flightTicketStyles = StyleSheet.create({
   },
 
   searchFormTitle: {
-    color: "#171717",
+    color: colors.text,
     fontSize: 24,
     fontWeight: "900",
     letterSpacing: -0.2,
@@ -301,7 +300,7 @@ export const flightTicketStyles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: "rgba(23,59,58,0.13)",
+    borderColor: colors.borderStrong,
     backgroundColor: colors.white,
     flexDirection: "row",
     alignItems: "center",
@@ -332,20 +331,20 @@ export const flightTicketStyles = StyleSheet.create({
   },
 
   fieldLabel: {
-    color: "#171717",
+    color: colors.text,
     fontSize: 11,
     fontWeight: "900",
   },
 
   fieldValue: {
     marginTop: 3,
-    color: "#171717",
+    color: colors.text,
     fontSize: 14,
     fontWeight: "800",
   },
 
   fieldValueMuted: {
-    color: "#7B8490",
+    color: colors.textSoft,
   },
 
   primaryButton: {
@@ -354,7 +353,7 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryDark,
     paddingHorizontal: 18,
     flexDirection: "row",
     gap: 8,
@@ -376,14 +375,14 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.14)",
+    borderColor: colors.borderStrong,
     paddingHorizontal: 18,
   },
 
   secondaryButtonText: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "900",
   },
@@ -392,13 +391,13 @@ export const flightTicketStyles = StyleSheet.create({
     marginTop: 12,
     borderRadius: 16,
     padding: 12,
-    backgroundColor: "#FFF1F0",
+    backgroundColor: colors.dangerSoft,
     borderWidth: 1,
-    borderColor: "#FFD3CE",
+    borderColor: colors.dangerSoft,
   },
 
   errorText: {
-    color: "#B42318",
+    color: colors.danger,
     fontSize: 12,
     fontWeight: "800",
     lineHeight: 17,
@@ -409,15 +408,15 @@ export const flightTicketStyles = StyleSheet.create({
     marginTop: 12,
     padding: 16,
     borderRadius: 26,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.08)",
+    borderColor: colors.border,
     ...cardShadow,
   },
 
   routeTitle: {
     width: "100%",
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "900",
   },
@@ -425,7 +424,7 @@ export const flightTicketStyles = StyleSheet.create({
   routeMeta: {
     width: "100%",
     marginTop: 4,
-    color: "#5E6772",
+    color: colors.textMuted,
     fontSize: 12,
     fontWeight: "800",
   },
@@ -445,18 +444,18 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 18,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.12)",
+    borderColor: colors.borderStrong,
   },
 
   dateChipActive: {
-    borderColor: colors.primary,
-    backgroundColor: "rgba(15,122,120,0.1)",
+    borderColor: colors.primaryDark,
+    backgroundColor: colors.primaryMuted,
   },
 
   dateChipText: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 12,
     fontWeight: "900",
     textAlign: "center",
@@ -464,7 +463,7 @@ export const flightTicketStyles = StyleSheet.create({
 
   dateChipPrice: {
     marginTop: 4,
-    color: colors.primary,
+    color: colors.primaryDark,
     fontSize: 11,
     fontWeight: "900",
     textAlign: "center",
@@ -479,9 +478,9 @@ export const flightTicketStyles = StyleSheet.create({
   scheduleCard: {
     width: "100%",
     borderRadius: 26,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.08)",
+    borderColor: colors.border,
     overflow: "hidden",
     ...cardShadow,
   },
@@ -506,13 +505,13 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(15,122,120,0.1)",
+    backgroundColor: colors.primaryMuted,
     borderWidth: 1,
-    borderColor: "rgba(15,122,120,0.13)",
+    borderColor: colors.borderStrong,
   },
 
   airlineLogoText: {
-    color: colors.primary,
+    color: colors.primaryDark,
     fontSize: 14,
     fontWeight: "900",
     textAlign: "center",
@@ -531,7 +530,7 @@ export const flightTicketStyles = StyleSheet.create({
   },
 
   timeText: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 20,
     fontWeight: "900",
     flexShrink: 0,
@@ -550,7 +549,7 @@ export const flightTicketStyles = StyleSheet.create({
     minWidth: 12,
     height: 2,
     borderRadius: 2,
-    backgroundColor: "rgba(16,24,40,0.28)",
+    backgroundColor: colors.overlay,
   },
 
   airportCodeRow: {
@@ -563,13 +562,13 @@ export const flightTicketStyles = StyleSheet.create({
   },
 
   airportCode: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 12,
     fontWeight: "900",
   },
 
   durationText: {
-    color: "#6C737F",
+    color: colors.textMuted,
     fontSize: 11,
     fontWeight: "800",
   },
@@ -586,13 +585,13 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor: "#F7F8FA",
+    backgroundColor: colors.inputMuted,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.08)",
+    borderColor: colors.border,
   },
 
   smallBadgeText: {
-    color: "#354052",
+    color: colors.text,
     fontSize: 10,
     fontWeight: "900",
   },
@@ -604,24 +603,24 @@ export const flightTicketStyles = StyleSheet.create({
     paddingTop: 12,
     marginTop: 4,
     borderTopWidth: 1,
-    borderTopColor: "rgba(16,24,40,0.08)",
+    borderTopColor: colors.border,
   },
 
   originalPrice: {
-    color: "#7B8490",
+    color: colors.textSoft,
     fontSize: 14,
     fontWeight: "800",
     textDecorationLine: "line-through",
   },
 
   priceText: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 19,
     fontWeight: "900",
   },
 
   priceCaption: {
-    color: "#7B8490",
+    color: colors.textSoft,
     fontSize: 10,
     fontWeight: "700",
   },
@@ -631,14 +630,14 @@ export const flightTicketStyles = StyleSheet.create({
     marginTop: 16,
     borderRadius: 26,
     padding: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.08)",
+    borderColor: colors.border,
     alignItems: "center",
   },
 
   emptyTitle: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "900",
     textAlign: "center",
@@ -646,7 +645,7 @@ export const flightTicketStyles = StyleSheet.create({
 
   emptyDescription: {
     marginTop: 6,
-    color: "#6C737F",
+    color: colors.textMuted,
     fontSize: 12,
     fontWeight: "700",
     textAlign: "center",
@@ -658,14 +657,14 @@ export const flightTicketStyles = StyleSheet.create({
     marginTop: 12,
     padding: 16,
     borderRadius: 26,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.08)",
+    borderColor: colors.border,
     ...cardShadow,
   },
 
   detailDate: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 13,
     fontWeight: "900",
   },
@@ -680,7 +679,7 @@ export const flightTicketStyles = StyleSheet.create({
 
   timelineTime: {
     width: 48,
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 22,
     fontWeight: "900",
   },
@@ -695,14 +694,14 @@ export const flightTicketStyles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: colors.primary,
-    backgroundColor: "#FFFFFF",
+    borderColor: colors.primaryDark,
+    backgroundColor: colors.card,
   },
 
   timelineLine: {
     width: 2,
     height: 42,
-    backgroundColor: "rgba(15,122,120,0.22)",
+    backgroundColor: colors.primaryMuted,
   },
 
   timelineCopy: {
@@ -711,7 +710,7 @@ export const flightTicketStyles = StyleSheet.create({
   },
 
   timelineCity: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "900",
   },
@@ -728,21 +727,21 @@ export const flightTicketStyles = StyleSheet.create({
     marginTop: 16,
     padding: 18,
     borderRadius: 26,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.08)",
+    borderColor: colors.border,
     ...cardShadow,
   },
 
   fareClass: {
-    color: "#5E6772",
+    color: colors.textMuted,
     fontSize: 13,
     fontWeight: "800",
   },
 
   farePrice: {
     marginTop: 4,
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 26,
     fontWeight: "900",
   },
@@ -753,7 +752,7 @@ export const flightTicketStyles = StyleSheet.create({
   },
 
   fareListText: {
-    color: "#354052",
+    color: colors.text,
     fontSize: 13,
     fontWeight: "700",
   },
@@ -771,13 +770,13 @@ export const flightTicketStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: colors.primary,
-    backgroundColor: "#FFFFFF",
+    borderColor: colors.primaryDark,
+    backgroundColor: colors.card,
     paddingHorizontal: 12,
   },
 
   miniButtonText: {
-    color: colors.primary,
+    color: colors.primaryDark,
     fontSize: 12,
     fontWeight: "900",
   },
@@ -786,9 +785,9 @@ export const flightTicketStyles = StyleSheet.create({
     width: "100%",
     marginTop: 12,
     borderRadius: 26,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.08)",
+    borderColor: colors.border,
     overflow: "hidden",
     ...cardShadow,
   },
@@ -797,11 +796,11 @@ export const flightTicketStyles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(16,24,40,0.08)",
+    borderBottomColor: colors.border,
   },
 
   sectionHeaderTitle: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "900",
   },
@@ -818,8 +817,8 @@ export const flightTicketStyles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.12)",
-    backgroundColor: "#FFFFFF",
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.card,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
@@ -830,7 +829,7 @@ export const flightTicketStyles = StyleSheet.create({
     height: 21,
     borderRadius: 11,
     borderWidth: 2,
-    borderColor: colors.primary,
+    borderColor: colors.primaryDark,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -839,19 +838,19 @@ export const flightTicketStyles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryDark,
   },
 
   passengerName: {
     flex: 1,
     minWidth: 0,
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 18,
     fontWeight: "800",
   },
 
   contactName: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 18,
     fontWeight: "800",
   },
@@ -859,7 +858,7 @@ export const flightTicketStyles = StyleSheet.create({
   contactMeta: {
     width: "100%",
     marginTop: 4,
-    color: "#5E6772",
+    color: colors.textMuted,
     fontSize: 12,
     fontWeight: "700",
   },
@@ -870,16 +869,16 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 20,
     padding: 14,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.12)",
-    backgroundColor: "#FFFFFF",
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.card,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
   },
 
   optionCardSelected: {
-    borderColor: colors.primary,
-    backgroundColor: "rgba(15,122,120,0.07)",
+    borderColor: colors.primaryDark,
+    backgroundColor: colors.primarySoft,
   },
 
   optionText: {
@@ -888,14 +887,14 @@ export const flightTicketStyles = StyleSheet.create({
   },
 
   optionTitle: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "900",
   },
 
   optionDescription: {
     marginTop: 4,
-    color: "#5E6772",
+    color: colors.textMuted,
     fontSize: 12,
     fontWeight: "700",
     lineHeight: 17,
@@ -903,7 +902,7 @@ export const flightTicketStyles = StyleSheet.create({
 
   optionPrice: {
     flexShrink: 0,
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "900",
   },
@@ -921,13 +920,13 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 16,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.14)",
+    borderColor: colors.borderStrong,
   },
 
   timerText: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 13,
     fontWeight: "900",
   },
@@ -940,11 +939,11 @@ export const flightTicketStyles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: PAGE_PADDING,
     paddingTop: 14,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.08)",
+    borderColor: colors.border,
     ...cardShadow,
   },
 
@@ -957,21 +956,21 @@ export const flightTicketStyles = StyleSheet.create({
   },
 
   bottomPriceCaption: {
-    color: "#5E6772",
+    color: colors.textMuted,
     fontSize: 14,
     fontWeight: "800",
   },
 
   bottomOriginalPrice: {
     marginTop: 4,
-    color: "#7B8490",
+    color: colors.textSoft,
     fontSize: 11,
     fontWeight: "800",
     textDecorationLine: "line-through",
   },
 
   bottomPrice: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 22,
     fontWeight: "900",
   },
@@ -983,7 +982,7 @@ export const flightTicketStyles = StyleSheet.create({
 
   modalBackdrop: {
     flex: 1,
-    backgroundColor: "rgba(15, 23, 42, 0.42)",
+    backgroundColor: colors.overlay,
     justifyContent: "flex-end",
   },
 
@@ -997,7 +996,7 @@ export const flightTicketStyles = StyleSheet.create({
     maxHeight: "88%",
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     paddingHorizontal: 16,
     paddingTop: 18,
     paddingBottom: 28,
@@ -1006,7 +1005,7 @@ export const flightTicketStyles = StyleSheet.create({
   dialogCard: {
     width: "100%",
     borderRadius: 28,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     padding: 18,
   },
 
@@ -1015,7 +1014,7 @@ export const flightTicketStyles = StyleSheet.create({
     width: 46,
     height: 5,
     borderRadius: 999,
-    backgroundColor: "rgba(16,24,40,0.14)",
+    backgroundColor: colors.borderStrong,
     marginBottom: 14,
   },
 
@@ -1029,7 +1028,7 @@ export const flightTicketStyles = StyleSheet.create({
 
   sheetTitle: {
     flex: 1,
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 19,
     fontWeight: "900",
     textAlign: "center",
@@ -1041,7 +1040,7 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F7F8FA",
+    backgroundColor: colors.inputMuted,
   },
 
   optionRow: {
@@ -1051,27 +1050,27 @@ export const flightTicketStyles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 11,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.1)",
-    backgroundColor: "#FFFFFF",
+    borderColor: colors.border,
+    backgroundColor: colors.card,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
   },
 
   optionRowActive: {
-    borderColor: colors.primary,
-    backgroundColor: "rgba(15,122,120,0.07)",
+    borderColor: colors.primaryDark,
+    backgroundColor: colors.primarySoft,
   },
 
   optionRowTitle: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "900",
   },
 
   optionRowDescription: {
     marginTop: 3,
-    color: "#5E6772",
+    color: colors.textMuted,
     fontSize: 12,
     fontWeight: "700",
   },
@@ -1090,24 +1089,24 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 16,
     padding: 13,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.12)",
-    backgroundColor: "#FFFFFF",
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.card,
   },
 
   cabinChipActive: {
-    borderColor: colors.primary,
-    backgroundColor: "rgba(15,122,120,0.07)",
+    borderColor: colors.primaryDark,
+    backgroundColor: colors.primarySoft,
   },
 
   cabinChipTitle: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "900",
   },
 
   cabinChipDescription: {
     marginTop: 4,
-    color: "#5E6772",
+    color: colors.textMuted,
     fontSize: 12,
     fontWeight: "700",
   },
@@ -1123,14 +1122,14 @@ export const flightTicketStyles = StyleSheet.create({
   },
 
   counterTitle: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "900",
   },
 
   counterDescription: {
     marginTop: 2,
-    color: "#5E6772",
+    color: colors.textMuted,
     fontSize: 12,
     fontWeight: "700",
   },
@@ -1147,9 +1146,9 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 17,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F7F8FA",
+    backgroundColor: colors.inputMuted,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.12)",
+    borderColor: colors.borderStrong,
   },
 
   counterButtonDisabled: {
@@ -1158,7 +1157,7 @@ export const flightTicketStyles = StyleSheet.create({
 
   counterValue: {
     minWidth: 20,
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "900",
     textAlign: "center",
@@ -1180,9 +1179,9 @@ export const flightTicketStyles = StyleSheet.create({
     marginTop: 24,
     padding: 24,
     borderRadius: 28,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.08)",
+    borderColor: colors.border,
     alignItems: "center",
     ...cardShadow,
   },
@@ -1193,12 +1192,12 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 41,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(15,122,120,0.1)",
+    backgroundColor: colors.primaryMuted,
   },
 
   statusTitle: {
     marginTop: 16,
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 26,
     fontWeight: "900",
     textAlign: "center",
@@ -1206,7 +1205,7 @@ export const flightTicketStyles = StyleSheet.create({
 
   statusDescription: {
     marginTop: 8,
-    color: "#5E6772",
+    color: colors.textMuted,
     fontSize: 13,
     fontWeight: "700",
     textAlign: "center",
@@ -1218,9 +1217,9 @@ export const flightTicketStyles = StyleSheet.create({
     marginTop: 14,
     padding: 16,
     borderRadius: 26,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.08)",
+    borderColor: colors.border,
   },
 
 
@@ -1231,9 +1230,9 @@ export const flightTicketStyles = StyleSheet.create({
     padding: 5,
     marginBottom: 14,
     borderRadius: 20,
-    backgroundColor: "#F3F6F6",
+    backgroundColor: colors.primarySoft,
     borderWidth: 1,
-    borderColor: "rgba(11,111,109,0.08)",
+    borderColor: colors.border,
   },
 
   tripTab: {
@@ -1247,26 +1246,26 @@ export const flightTicketStyles = StyleSheet.create({
   },
 
   tripTabActive: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryDark,
   },
 
   tripTabText: {
-    color: colors.primary,
+    color: colors.primaryDark,
     fontSize: 12,
     fontWeight: "900",
   },
 
   tripTabTextActive: {
-    color: "#FFFFFF",
+    color: colors.white,
   },
 
   calendarCard: {
     width: "100%",
     borderRadius: 28,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.card,
     padding: 18,
     borderWidth: 1,
-    borderColor: "rgba(16,24,40,0.08)",
+    borderColor: colors.border,
     ...cardShadow,
   },
 
@@ -1284,12 +1283,12 @@ export const flightTicketStyles = StyleSheet.create({
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(11,111,109,0.08)",
+    backgroundColor: colors.primaryMuted,
   },
 
   calendarTitle: {
     flex: 1,
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 16,
     fontWeight: "900",
     textAlign: "center",
@@ -1302,7 +1301,7 @@ export const flightTicketStyles = StyleSheet.create({
 
   calendarWeekText: {
     flex: 1,
-    color: "#7B8490",
+    color: colors.textSoft,
     fontSize: 11,
     fontWeight: "900",
     textAlign: "center",
@@ -1323,17 +1322,17 @@ export const flightTicketStyles = StyleSheet.create({
   },
 
   calendarDayActive: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryDark,
   },
 
   calendarDayText: {
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 13,
     fontWeight: "800",
   },
 
   calendarDayTextActive: {
-    color: "#FFFFFF",
+    color: colors.white,
     fontWeight: "900",
   },
 
@@ -1355,7 +1354,7 @@ export const flightTicketStyles = StyleSheet.create({
   },
 
   statusLabel: {
-    color: "#5E6772",
+    color: colors.textMuted,
     fontSize: 12,
     fontWeight: "800",
   },
@@ -1363,7 +1362,7 @@ export const flightTicketStyles = StyleSheet.create({
   statusValue: {
     flex: 1,
     minWidth: 0,
-    color: "#1E2329",
+    color: colors.text,
     fontSize: 13,
     fontWeight: "900",
     textAlign: "right",

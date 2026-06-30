@@ -1,5 +1,7 @@
-import { Text, View } from "react-native";
-import { styles } from "./SectionTitle.styles";
+import { colors, getThemeColors } from "@/theme";
+import { useMemo } from "react";
+import { Text, useColorScheme, View } from "react-native";
+import { createStyles } from "./SectionTitle.styles";
 
 type SectionTitleProps = {
   title: string;
@@ -16,6 +18,10 @@ const sanitizeText = (value?: string, fallback = "") => {
 };
 
 export function SectionTitle({ title, subtitle }: SectionTitleProps) {
+  const deviceMode = useColorScheme();
+  const theme = getThemeColors(deviceMode === "dark" ? "dark" : "light") as typeof colors;
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
   const safeTitle = sanitizeText(title, "Section");
   const safeSubtitle = sanitizeText(subtitle);
 

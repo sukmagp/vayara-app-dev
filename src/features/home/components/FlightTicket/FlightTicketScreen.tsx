@@ -205,7 +205,7 @@ function Header({
           pressed ? styles.fieldButtonPressed : null,
         ]}
       >
-        <Ionicons name="arrow-back" size={24} color="#1E2329" />
+        <Ionicons name="arrow-back" size={24} color={colors.text} />
       </Pressable>
 
       <View style={styles.headerTitleBlock}>
@@ -229,7 +229,7 @@ function Header({
             pressed ? styles.fieldButtonPressed : null,
           ]}
         >
-          <Ionicons name={rightIcon} size={21} color="#1E2329" />
+          <Ionicons name={rightIcon} size={21} color={colors.text} />
         </Pressable>
       ) : (
         <View style={{ width: 42 }} />
@@ -325,7 +325,7 @@ const SelectField = memo(function SelectField({
       ]}
     >
       <View style={styles.fieldIcon}>
-        <Ionicons name={icon} size={17} color={colors.primary} />
+        <Ionicons name={icon} size={17} color={colors.primaryDark} />
       </View>
 
       <View style={styles.fieldCopy}>
@@ -340,7 +340,7 @@ const SelectField = memo(function SelectField({
         </Text>
       </View>
 
-      <Ionicons name="chevron-down" size={18} color="#7B8490" />
+      <Ionicons name="chevron-down" size={18} color={colors.textMuted} />
     </Pressable>
   );
 });
@@ -383,7 +383,7 @@ function TripTypeTabs({
               pressed ? styles.fieldButtonPressed : null,
             ]}
           >
-            <Ionicons name={tab.icon} size={16} color={active ? colors.white : colors.primary} />
+            <Ionicons name={tab.icon} size={16} color={active ? colors.white : colors.primaryDark} />
             <Text style={[styles.tripTabText, active ? styles.tripTabTextActive : null]}>
               {tab.label}
             </Text>
@@ -526,7 +526,7 @@ function OptionPickerModal({
               onPress={onClose}
               style={styles.sheetCloseButton}
             >
-              <Ionicons name="close" size={21} color="#1E2329" />
+              <Ionicons name="close" size={21} color={colors.text} />
             </Pressable>
           </View>
 
@@ -550,7 +550,7 @@ function OptionPickerModal({
                     pressed ? styles.fieldButtonPressed : null,
                   ]}
                 >
-                  <View style={[styles.radioDot, !selected ? { borderColor: "#C6CCD4" } : null]}>
+                  <View style={[styles.radioDot, !selected ? { borderColor: colors.borderStrong } : null]}>
                     {selected ? <View style={styles.radioDotInner} /> : null}
                   </View>
 
@@ -606,7 +606,7 @@ function PassengerCounterRow({
           onPress={() => onChange(-1)}
           style={[styles.counterButton, !canDecrease ? styles.counterButtonDisabled : null]}
         >
-          <Ionicons name="remove" size={18} color="#1E2329" />
+          <Ionicons name="remove" size={18} color={colors.text} />
         </Pressable>
 
         <Text style={styles.counterValue}>{value}</Text>
@@ -619,7 +619,7 @@ function PassengerCounterRow({
           onPress={() => onChange(1)}
           style={[styles.counterButton, !canIncrease ? styles.counterButtonDisabled : null]}
         >
-          <Ionicons name="add" size={18} color="#1E2329" />
+          <Ionicons name="add" size={18} color={colors.text} />
         </Pressable>
       </View>
     </View>
@@ -688,7 +688,7 @@ function PassengerSheet({
               onPress={onClose}
               style={styles.sheetCloseButton}
             >
-              <Ionicons name="close" size={21} color="#1E2329" />
+              <Ionicons name="close" size={21} color={colors.text} />
             </Pressable>
           </View>
 
@@ -821,7 +821,7 @@ function SearchScreen({
               pressed ? styles.fieldButtonPressed : null,
             ]}
           >
-            <Ionicons name="arrow-back" size={24} color="#1E2329" />
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
           </Pressable>
         </View>
       </View>
@@ -926,7 +926,7 @@ function FlightScheduleCard({
             <Text style={styles.timeText}>{schedule.departureTime}</Text>
             <View style={styles.planeLine}>
               <View style={styles.line} />
-              <Ionicons name="airplane" size={18} color="#1E2329" />
+              <Ionicons name="airplane" size={18} color={colors.text} />
               <View style={styles.line} />
             </View>
             <Text style={styles.timeText}>{schedule.arrivalTime}</Text>
@@ -995,7 +995,7 @@ function ResultsScreen({
 
       {isSearching ? (
         <View style={styles.emptyCard}>
-          <Ionicons name="airplane-outline" size={30} color={colors.primary} />
+          <Ionicons name="airplane-outline" size={30} color={colors.primaryDark} />
           <Text style={styles.emptyTitle}>Mencari jadwal...</Text>
           <Text style={styles.emptyDescription}>
             Tunggu sebentar, sistem sedang mengambil jadwal penerbangan dari server.
@@ -1009,7 +1009,7 @@ function ResultsScreen({
         </View>
       ) : (
         <View style={styles.emptyCard}>
-          <Ionicons name="airplane-outline" size={30} color={colors.primary} />
+          <Ionicons name="airplane-outline" size={30} color={colors.primaryDark} />
           <Text style={styles.emptyTitle}>Jadwal belum tersedia</Text>
           <Text style={styles.emptyDescription}>
             Ubah rute, tanggal, atau kelas penerbangan untuk melihat pilihan lainnya.
@@ -1130,7 +1130,7 @@ function BaggageOptionCard({
         pressed ? styles.fieldButtonPressed : null,
       ]}
     >
-      <View style={[styles.radioDot, !selected ? { borderColor: "#C6CCD4" } : null]}>
+      <View style={[styles.radioDot, !selected ? { borderColor: colors.borderStrong } : null]}>
         {selected ? <View style={styles.radioDotInner} /> : null}
       </View>
       <Text style={styles.optionTitle}>{option.label}</Text>
@@ -1287,13 +1287,13 @@ function PaymentMethodCard({
       ]}
     >
       <View style={styles.airlineLogo}>
-        <Ionicons name={method.icon as IoniconName} size={22} color={colors.primary} />
+        <Ionicons name={method.icon as IoniconName} size={22} color={colors.primaryDark} />
       </View>
       <View style={styles.optionText}>
         <Text style={styles.optionTitle}>{method.label}</Text>
         <Text style={styles.optionDescription}>{method.description}</Text>
       </View>
-      <View style={[styles.radioDot, !selected ? { borderColor: "#C6CCD4" } : null]}>
+      <View style={[styles.radioDot, !selected ? { borderColor: colors.borderStrong } : null]}>
         {selected ? <View style={styles.radioDotInner} /> : null}
       </View>
     </Pressable>
@@ -1367,7 +1367,7 @@ function StatusScreen({ order, onHome }: { order: FlightOrder; onHome: () => voi
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
       <View style={styles.statusHero}>
         <View style={styles.statusIcon}>
-          <Ionicons name="checkmark-circle" size={42} color={colors.primary} />
+          <Ionicons name="checkmark-circle" size={42} color={colors.primaryDark} />
         </View>
         <Text style={styles.statusTitle}>Pembayaran Berhasil</Text>
         <Text style={styles.statusDescription}>
@@ -1475,7 +1475,7 @@ function EditScheduleModal({
               onPress={onClose}
               style={styles.sheetCloseButton}
             >
-              <Ionicons name="close" size={21} color="#1E2329" />
+              <Ionicons name="close" size={21} color={colors.text} />
             </Pressable>
           </View>
 
@@ -1543,17 +1543,17 @@ function CalendarDatePickerModal({
             <View style={{ width: 38 }} />
             <Text style={styles.sheetTitle}>{sanitizeText(title, "Pilih tanggal")}</Text>
             <Pressable accessibilityRole="button" accessibilityLabel="Tutup date picker" onPress={onClose} style={styles.sheetCloseButton}>
-              <Ionicons name="close" size={21} color="#1E2329" />
+              <Ionicons name="close" size={21} color={colors.text} />
             </Pressable>
           </View>
 
           <View style={styles.calendarHeader}>
             <Pressable accessibilityRole="button" onPress={() => moveMonth(-1)} style={styles.calendarNavButton}>
-              <Ionicons name="chevron-back" size={20} color={colors.primary} />
+              <Ionicons name="chevron-back" size={20} color={colors.primaryDark} />
             </Pressable>
             <Text style={styles.calendarTitle}>{getMonthTitle(viewDate)}</Text>
             <Pressable accessibilityRole="button" onPress={() => moveMonth(1)} style={styles.calendarNavButton}>
-              <Ionicons name="chevron-forward" size={20} color={colors.primary} />
+              <Ionicons name="chevron-forward" size={20} color={colors.primaryDark} />
             </Pressable>
           </View>
 

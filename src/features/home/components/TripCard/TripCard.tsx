@@ -1,16 +1,18 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useMemo } from "react";
 import {
   Image,
   Pressable,
   Text,
+  useColorScheme,
   View,
   type ImageSourcePropType,
 } from "react-native";
 
 import { appImages } from "@/constants/assets";
-import { colors } from "@/theme";
+import { colors, getThemeColors } from "@/theme";
 import type { TripCard as TripCardType } from "../../types/home.types";
-import { styles } from "./TripCard.styles";
+import { createStyles } from "./TripCard.styles";
 
 type TripCardProps = {
   item: TripCardType;
@@ -42,6 +44,10 @@ const resolveImageSource = (
 };
 
 export function TripCard({ item, onPress }: TripCardProps) {
+  const deviceMode = useColorScheme();
+  const theme = getThemeColors(deviceMode === "dark" ? "dark" : "light") as typeof colors;
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
   const safeTitle = sanitizeText(item.title, "Perjalanan");
   const safeSubtitle = sanitizeText(item.subtitle, "Tanggal belum tersedia");
   const safeMeta = sanitizeText(item.meta, "Detail belum tersedia");
@@ -70,6 +76,12 @@ export function TripCard({ item, onPress }: TripCardProps) {
           <Text numberOfLines={2} style={styles.title}>
             {safeTitle}
           </Text>
+
+          <View style={styles.statusBadge}>
+            <Text numberOfLines={1} style={styles.statusText}>
+              {safeStatus}
+            </Text>
+          </View>
         </View>
 
         <View style={styles.metaGroup}>
@@ -78,7 +90,7 @@ export function TripCard({ item, onPress }: TripCardProps) {
               <Ionicons
                 name="calendar-outline"
                 size={14}
-                color={colors.primary}
+                color={theme.primaryDark}
               />
             </View>
 
@@ -92,7 +104,7 @@ export function TripCard({ item, onPress }: TripCardProps) {
               <Ionicons
                 name="people-outline"
                 size={14}
-                color={colors.primary}
+                color={theme.primaryDark}
               />
             </View>
 

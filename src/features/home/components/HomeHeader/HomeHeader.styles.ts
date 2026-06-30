@@ -1,76 +1,94 @@
 import { colors, spacing } from "@/theme";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: spacing.md,
-  },
+type ThemeColors = typeof colors;
 
-  greetingWrap: {
-    flex: 1,
-    minWidth: 0,
-  },
+const createButtonShadow = (theme: ThemeColors) =>
+  Platform.select({
+    ios: {
+      shadowColor: theme.shadow,
+      shadowOpacity: 0.12,
+      shadowRadius: 14,
+      shadowOffset: { width: 0, height: 8 },
+    },
+    android: {
+      elevation: 3,
+    },
+    default: {},
+  });
 
-  greetingLabel: {
-    color: "rgba(255,255,255,0.82)",
-    fontWeight: "800",
-    letterSpacing: -0.2,
-  },
+export const createStyles = (theme: ThemeColors = colors) => {
+  const buttonShadow = createButtonShadow(theme);
 
-  greetingName: {
-    marginTop: 0,
-    color: colors.white,
-    fontWeight: "900",
-    letterSpacing: -0.35,
-  },
+  return StyleSheet.create({
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: spacing.md,
+    },
 
-  actions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-  },
+    greetingWrap: {
+      flex: 1,
+      minWidth: 0,
+    },
 
-  actionsSmall: {
-    gap: 7,
-  },
+    greetingLabel: {
+      color: theme.textMuted,
+      fontWeight: "800",
+      letterSpacing: -0.2,
+    },
 
-  circleButton: {
-    backgroundColor: "rgba(255,255,255,0.96)",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.55)",
-    shadowColor: colors.shadow,
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 5 },
-    elevation: 2,
-  },
+    greetingName: {
+      marginTop: 1,
+      color: theme.text,
+      fontWeight: "900",
+      letterSpacing: -0.35,
+    },
 
-  notificationBadge: {
-    position: "absolute",
-    top: -2,
-    right: -2,
-    backgroundColor: colors.danger,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 4,
-    borderWidth: 2,
-    borderColor: colors.white,
-  },
+    actions: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.sm,
+    },
 
-  notificationBadgeText: {
-    color: colors.white,
-    fontSize: 10,
-    fontWeight: "900",
-    lineHeight: 12,
-  },
+    actionsSmall: {
+      gap: 7,
+    },
 
-  actionPressed: {
-    opacity: 0.72,
-    transform: [{ scale: 0.96 }],
-  },
-});
+    circleButton: {
+      backgroundColor: theme.glassStrong,
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 1,
+      borderColor: theme.glassBorder,
+      ...buttonShadow,
+    },
+
+    notificationBadge: {
+      position: "absolute",
+      top: -2,
+      right: -2,
+      backgroundColor: theme.danger,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: 4,
+      borderWidth: 2,
+      borderColor: theme.card,
+    },
+
+    notificationBadgeText: {
+      color: theme.white,
+      fontSize: 10,
+      fontWeight: "900",
+      lineHeight: 12,
+    },
+
+    actionPressed: {
+      opacity: 0.78,
+      transform: [{ scale: 0.96 }],
+    },
+  });
+};
+
+export const styles = createStyles(colors);

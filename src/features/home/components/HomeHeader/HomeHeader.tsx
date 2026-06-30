@@ -1,7 +1,14 @@
-import { colors } from "@/theme";
+import { colors, getThemeColors } from "@/theme";
 import { Ionicons } from "@expo/vector-icons";
-import { Pressable, Text, useWindowDimensions, View } from "react-native";
-import { styles } from "./HomeHeader.styles";
+import { useMemo } from "react";
+import {
+  Pressable,
+  Text,
+  useColorScheme,
+  useWindowDimensions,
+  View,
+} from "react-native";
+import { createStyles } from "./HomeHeader.styles";
 
 type HomeHeaderProps = {
   userName?: string;
@@ -39,6 +46,9 @@ export function HomeHeader({
   onProfilePress,
 }: HomeHeaderProps) {
   const { width } = useWindowDimensions();
+  const deviceMode = useColorScheme();
+  const theme = getThemeColors(deviceMode === "dark" ? "dark" : "light") as typeof colors;
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   const safeUserName = sanitizeText(userName, "Traveler");
   const safeNotificationCount = clampNotificationCount(notificationCount);
@@ -97,7 +107,7 @@ export function HomeHeader({
           <Ionicons
             name="notifications-outline"
             size={iconSize}
-            color={colors.primary}
+            color={theme.primaryDark}
           />
 
           {safeNotificationCount > 0 ? (
@@ -132,7 +142,7 @@ export function HomeHeader({
             pressed ? styles.actionPressed : null,
           ]}
         >
-          <Ionicons name="person" size={iconSize} color={colors.primary} />
+          <Ionicons name="person" size={iconSize} color={theme.primaryDark} />
         </Pressable>
       </View>
     </View>

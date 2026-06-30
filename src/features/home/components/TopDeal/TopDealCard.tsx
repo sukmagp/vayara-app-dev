@@ -1,14 +1,17 @@
 import { appImages } from "@/constants/assets";
+import { colors, getThemeColors } from "@/theme";
+import { useMemo } from "react";
 import {
   Image,
   Pressable,
   Text,
+  useColorScheme,
   View,
   type ImageSourcePropType,
 } from "react-native";
 
 import type { TopDeal } from "../../types/home.types";
-import { styles } from "./TopDealCard.styles";
+import { createStyles } from "./TopDealCard.styles";
 
 type TopDealCardProps = {
   item: TopDeal;
@@ -77,6 +80,10 @@ const clampDiscount = (value?: number) => {
 };
 
 export function TopDealCard({ item, onPress }: TopDealCardProps) {
+  const deviceMode = useColorScheme();
+  const theme = getThemeColors(deviceMode === "dark" ? "dark" : "light") as typeof colors;
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
   const safeTitle = sanitizeText(item.title, "Top Deal");
   const safeLocation = sanitizeText(item.location, "Lokasi belum tersedia");
   const safeTag = sanitizeText(item.tag, "Promo");

@@ -1,8 +1,9 @@
-import { colors } from "@/theme";
+import { colors, getThemeColors } from "@/theme";
 import { Ionicons } from "@expo/vector-icons";
-import { Pressable, Text, View } from "react-native";
+import { useMemo } from "react";
+import { Pressable, Text, useColorScheme, View } from "react-native";
 import type { TravelCategory } from "../../types/home.types";
-import { styles } from "./CategoryCard.styles";
+import { createStyles } from "./CategoryCard.styles";
 
 type CategoryCardProps = {
   item: TravelCategory;
@@ -36,11 +37,16 @@ export function CategoryCard({
   item,
   iconSize = 64,
   cardWidth = 76,
-  labelColor = colors.white,
+  labelColor,
   onPress,
 }: CategoryCardProps) {
+  const deviceMode = useColorScheme();
+  const theme = getThemeColors(deviceMode === "dark" ? "dark" : "light") as typeof colors;
+  const styles = useMemo(() => createStyles(theme), [theme]);
+
   const safeName = sanitizeText(item?.name, "Kategori");
   const iconName = resolveIconName(item?.icon);
+  const resolvedLabelColor = labelColor ?? theme.text;
 
   return (
     <Pressable
@@ -59,14 +65,14 @@ export function CategoryCard({
           {
             width: iconSize,
             height: iconSize,
-            borderRadius: Math.round(iconSize * 0.26),
+            borderRadius: Math.round(iconSize * 0.28),
           },
         ]}
       >
         <Ionicons
           name={iconName}
           size={Math.round(iconSize * 0.42)}
-          color={colors.primary}
+          color={theme.primaryDark}
         />
       </View>
 
@@ -75,7 +81,7 @@ export function CategoryCard({
         style={[
           styles.text,
           {
-            color: labelColor,
+            color: resolvedLabelColor,
             fontSize: iconSize <= 60 ? 11 : 12,
             lineHeight: iconSize <= 60 ? 14 : 15,
           },

@@ -1,22 +1,26 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   Text,
   TextInput,
+  useColorScheme,
+  useWindowDimensions,
   View,
 } from "react-native";
 
-import { AppButton } from "@/components/ui/AppButton";
 import { OTP_LENGTH } from "@/constants/app.constants";
 import { appImages } from "@/constants/assets";
+import { getThemeColors } from "@/theme";
 import { getSafeErrorMessage } from "@/utils/error.utils";
 
 import { useAuth } from "../hooks/useAuth";
-import { styles } from "../styles/OtpScreen.styles";
+import { createOtpScreenStyles } from "../styles/OtpScreen.styles";
 
 const RESEND_COOLDOWN_SECONDS = 30;
 const MAX_IDENTIFIER_LENGTH = 160;
@@ -42,10 +46,6 @@ const isValidIdentifier = (value: string) => {
   if (!identifier || isMaskedIdentifier(identifier)) return false;
   if (identifier.length > MAX_IDENTIFIER_LENGTH) return false;
 
-  /**
-   * BE menerima identifier berupa email atau username.
-   * Jadi validasi dibuat cukup ketat, tapi tidak memaksa harus email.
-   */
   return /^[a-zA-Z0-9@._-]+$/.test(identifier);
 };
 
@@ -76,7 +76,58 @@ const formatCountdown = (seconds: number) => {
   return `${String(minute).padStart(2, "0")}:${String(second).padStart(2, "0")}`;
 };
 
+type GradientOtpButtonProps = {
+  title: string;
+  loading: boolean;
+  disabled: boolean;
+  onPress: () => void;
+  theme: ReturnType<typeof getThemeColors>;
+  styles: ReturnType<typeof createOtpScreenStyles>;
+};
+
+const GradientOtpButton = memo(
+  ({ title, loading, disabled, onPress, theme, styles }: GradientOtpButtonProps) => {
+    const isDisabled = disabled || loading;
+
+    return (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ disabled: isDisabled, busy: loading }}
+        disabled={isDisabled}
+        onPress={onPress}
+        style={({ pressed }) => [
+          styles.gradientButtonWrap,
+          pressed && !isDisabled ? styles.gradientButtonPressed : null,
+          isDisabled ? styles.gradientButtonDisabled : null,
+        ]}
+      >
+        <LinearGradient
+          colors={[...theme.gradientBarStops]}
+          locations={[...theme.gradientBarLocations]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.gradientButton}
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color={theme.gradientBarIcon} />
+          ) : (
+            <Text style={styles.gradientButtonText}>{title}</Text>
+          )}
+        </LinearGradient>
+      </Pressable>
+    );
+  },
+);
+
+GradientOtpButton.displayName = "GradientOtpButton";
+
 export function OtpScreen() {
+  const colorScheme = useColorScheme();
+  const { width, height } = useWindowDimensions();
+
+  const theme = useMemo(() => getThemeColors(colorScheme), [colorScheme]);
+  const styles = useMemo(() => createOtpScreenStyles(theme, width, height), [theme, width, height]);
+
   const params = useLocalSearchParams<{
     identifier?: string;
     email?: string;
@@ -89,10 +140,6 @@ export function OtpScreen() {
     const identifierParam = getParamValue(params.identifier);
     const emailParam = getParamValue(params.email);
 
-    /**
-     * Prioritaskan identifier karena inilah yang dikirim ke BE.
-     * Email hanya untuk display/fallback.
-     */
     return identifierParam || emailParam;
   }, [params.identifier, params.email]);
 
@@ -113,15 +160,8 @@ export function OtpScreen() {
     return emailParam || rawIdentifier || "email anda";
   }, [params.email, rawIdentifier]);
 
-  const maskedIdentifier = useMemo(
-    () => maskEmail(displayIdentifier),
-    [displayIdentifier],
-  );
-
-  const identifierIsValid = useMemo(
-    () => isValidIdentifier(rawIdentifier),
-    [rawIdentifier],
-  );
+  const maskedIdentifier = useMemo(() => maskEmail(displayIdentifier), [displayIdentifier]);
+  const identifierIsValid = useMemo(() => isValidIdentifier(rawIdentifier), [rawIdentifier]);
 
   const inputsRef = useRef<(TextInput | null)[]>([]);
   const submitLockedRef = useRef(false);
@@ -173,53 +213,47 @@ export function OtpScreen() {
     });
   }, []);
 
-  const handleChange = useCallback(
-    (value: string, index: number) => {
-      const digits = value.replace(/\D/g, "");
+  const handleChange = useCallback((value: string, index: number) => {
+    const digits = value.replace(/\D/g, "");
 
-      if (!digits) {
-        setOtp((prev) => {
-          const next = [...prev];
-          next[index] = "";
-          return next;
-        });
-        return;
-      }
-
-      /**
-       * Support paste OTP full 6 digit dari keyboard suggestion.
-       */
-      if (digits.length > 1) {
-        const nextOtp = Array(OTP_LENGTH).fill("");
-
-        digits
-          .slice(0, OTP_LENGTH)
-          .split("")
-          .forEach((digit, digitIndex) => {
-            nextOtp[digitIndex] = digit;
-          });
-
-        setOtp(nextOtp);
-
-        const nextFocusIndex = Math.min(digits.length, OTP_LENGTH - 1);
-        inputsRef.current[nextFocusIndex]?.focus();
-        return;
-      }
-
-      const digit = digits.slice(-1);
-
+    if (!digits) {
       setOtp((prev) => {
         const next = [...prev];
-        next[index] = digit;
+        next[index] = "";
         return next;
       });
+      return;
+    }
 
-      if (digit && index < OTP_LENGTH - 1) {
-        inputsRef.current[index + 1]?.focus();
-      }
-    },
-    [],
-  );
+    if (digits.length > 1) {
+      const nextOtp = Array(OTP_LENGTH).fill("");
+
+      digits
+        .slice(0, OTP_LENGTH)
+        .split("")
+        .forEach((digit, digitIndex) => {
+          nextOtp[digitIndex] = digit;
+        });
+
+      setOtp(nextOtp);
+
+      const nextFocusIndex = Math.min(digits.length, OTP_LENGTH - 1);
+      inputsRef.current[nextFocusIndex]?.focus();
+      return;
+    }
+
+    const digit = digits.slice(-1);
+
+    setOtp((prev) => {
+      const next = [...prev];
+      next[index] = digit;
+      return next;
+    });
+
+    if (digit && index < OTP_LENGTH - 1) {
+      inputsRef.current[index + 1]?.focus();
+    }
+  }, []);
 
   const handleKeyPress = useCallback(
     (key: string, index: number) => {
@@ -253,10 +287,7 @@ export function OtpScreen() {
         sessionId,
       });
     } catch {
-      /**
-       * Error ditampilkan via verifyOtpError dari React Query.
-       * OTP tidak otomatis dihapus supaya user masih bisa koreksi kode.
-       */
+      // Error ditampilkan via verifyOtpError.
     } finally {
       submitLockedRef.current = false;
     }
@@ -265,11 +296,6 @@ export function OtpScreen() {
   const handleResend = useCallback(() => {
     if (!canResend) return;
 
-    /**
-     * Postman BE belum menyediakan endpoint resend OTP.
-     * Untuk sekarang tombol ini hanya reset input + cooldown FE.
-     * Kalau BE sudah tambah endpoint resend, panggil mutation resend di sini.
-     */
     resetOtp();
     setResendSeconds(RESEND_COOLDOWN_SECONDS);
   }, [canResend, resetOtp]);
@@ -279,19 +305,41 @@ export function OtpScreen() {
     router.back();
   }, [resetOtp]);
 
+  const topFadeColors = useMemo(
+    () => [theme.background, "rgba(0,0,0,0)"] as const,
+    [theme.background],
+  );
+
+  const bottomFadeColors = useMemo(
+    () => ["rgba(0,0,0,0)", theme.authCard] as const,
+    [theme.authCard],
+  );
+
   return (
     <KeyboardAvoidingView
       style={styles.root}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <ImageBackground
-        source={appImages.otpBackground}
-        resizeMode="cover"
-        style={styles.hero}
-      >
+      <LinearGradient
+        colors={[...theme.splashGradient]}
+        locations={[...theme.gradientLocations]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.backgroundGradient}
+      />
+
+      <View style={styles.decorOne} />
+      <View style={styles.decorTwo} />
+
+      <ImageBackground source={appImages.otpBackground} resizeMode="cover" style={styles.hero}>
+        <View style={styles.heroOverlay} />
+        <LinearGradient colors={topFadeColors} style={styles.heroTopFade} />
+        <LinearGradient colors={bottomFadeColors} style={styles.heroBottomFade} />
       </ImageBackground>
 
       <View style={styles.card}>
+        <View style={styles.handle} />
+
         <Text style={styles.title}>Cek email Anda</Text>
 
         <Text style={styles.subtitle}>
@@ -300,9 +348,11 @@ export function OtpScreen() {
         </Text>
 
         {!identifierIsValid ? (
-          <Text style={styles.errorText}>
-            Sesi OTP tidak valid. Silakan kembali lalu login atau daftar ulang.
-          </Text>
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>
+              Sesi OTP tidak valid. Silakan kembali lalu login atau daftar ulang.
+            </Text>
+          </View>
         ) : null}
 
         <View style={styles.otpRow}>
@@ -314,9 +364,7 @@ export function OtpScreen() {
               }}
               value={value}
               onChangeText={(text) => handleChange(text, index)}
-              onKeyPress={({ nativeEvent }) =>
-                handleKeyPress(nativeEvent.key, index)
-              }
+              onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
               maxLength={index === 0 ? OTP_LENGTH : 1}
               keyboardType="number-pad"
               textContentType="oneTimeCode"
@@ -327,15 +375,18 @@ export function OtpScreen() {
               returnKeyType={index === OTP_LENGTH - 1 ? "done" : "next"}
               onSubmitEditing={index === OTP_LENGTH - 1 ? handleSubmit : undefined}
               accessibilityLabel={`Input OTP digit ${index + 1}`}
+              placeholderTextColor={theme.textSoft}
+              cursorColor={theme.primary}
+              selectionColor={theme.primaryMuted}
               style={[styles.otpInput, value ? styles.otpInputFilled : null]}
             />
           ))}
         </View>
 
         {verifyOtpError ? (
-          <Text style={styles.errorText}>
-            {getSafeErrorMessage(verifyOtpError)}
-          </Text>
+          <View style={styles.errorBox}>
+            <Text style={styles.errorText}>{getSafeErrorMessage(verifyOtpError)}</Text>
+          </View>
         ) : null}
 
         <Pressable
@@ -348,12 +399,7 @@ export function OtpScreen() {
         >
           <Text style={styles.resendText}>
             Tidak menerima kode?{" "}
-            <Text
-              style={[
-                styles.resendLink,
-                !canResend ? styles.resendLinkDisabled : null,
-              ]}
-            >
+            <Text style={[styles.resendLink, !canResend ? styles.resendLinkDisabled : null]}>
               Kirim ulang
             </Text>
           </Text>
@@ -365,15 +411,16 @@ export function OtpScreen() {
             : "Anda bisa meminta kode baru."}
         </Text>
 
-        <AppButton
+        <GradientOtpButton
           title="Selanjutnya"
           loading={verifyOtpLoading}
           disabled={!canSubmit}
           onPress={handleSubmit}
-          style={styles.button}
+          theme={theme}
+          styles={styles}
         />
 
-        <Pressable onPress={handleBack} hitSlop={10}>
+        <Pressable onPress={handleBack} hitSlop={10} style={styles.backButton}>
           <Text style={styles.backText}>Kembali</Text>
         </Pressable>
       </View>

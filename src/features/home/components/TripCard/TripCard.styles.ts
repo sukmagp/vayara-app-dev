@@ -1,92 +1,112 @@
 import { colors, radius, spacing } from "@/theme";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 
-export const styles = StyleSheet.create({
-  card: {
-    minHeight: 118,
-    borderRadius: 25,
-    backgroundColor: "rgba(255,255,255,0.94)",
-    padding: 9,
-    flexDirection: "row",
-    gap: spacing.md,
-    borderWidth: 1,
-    borderColor: "rgba(15,122,120,0.08)",
-    shadowColor: colors.shadow,
-    shadowOpacity: 0.05,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 7 },
-    elevation: 2,
-  },
+type ThemeColors = typeof colors;
 
-  cardPressed: {
-    opacity: 0.78,
-    transform: [{ scale: 0.99 }],
-  },
+const createCardShadow = (theme: ThemeColors) =>
+  Platform.select({
+    ios: {
+      shadowColor: theme.shadow,
+      shadowOpacity: 0.1,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 10 },
+    },
+    android: {
+      elevation: 3,
+    },
+    default: {},
+  });
 
-  image: {
-    width: 102,
-    height: 100,
-    borderRadius: 20,
-    backgroundColor: "rgba(15,122,120,0.08)",
-  },
+export const createStyles = (theme: ThemeColors = colors) => {
+  const cardShadow = createCardShadow(theme);
 
-  content: {
-    flex: 1,
-    minWidth: 0,
-    paddingVertical: 4,
-    justifyContent: "space-between",
-  },
+  return StyleSheet.create({
+    card: {
+      minHeight: 118,
+      borderRadius: 27,
+      backgroundColor: theme.card,
+      padding: 9,
+      flexDirection: "row",
+      gap: spacing.md,
+      borderWidth: 1,
+      borderColor: theme.border,
+      ...cardShadow,
+    },
 
-  titleGroup: {
-    gap: 7,
-  },
+    cardPressed: {
+      opacity: 0.84,
+      transform: [{ scale: 0.99 }],
+    },
 
-  title: {
-    color: colors.primary,
-    fontSize: 17,
-    fontWeight: "900",
-    lineHeight: 21,
-    letterSpacing: -0.25,
-  },
+    image: {
+      width: 102,
+      height: 100,
+      borderRadius: 22,
+      backgroundColor: theme.primarySoft,
+    },
 
-  statusBadge: {
-    alignSelf: "flex-start",
-    borderRadius: radius.full,
-    backgroundColor: colors.accentSoft,
-    paddingHorizontal: 11,
-    paddingVertical: 5,
-  },
+    content: {
+      flex: 1,
+      minWidth: 0,
+      paddingVertical: 4,
+      justifyContent: "space-between",
+    },
 
-  statusText: {
-    color: colors.primary,
-    fontSize: 11,
-    fontWeight: "900",
-    letterSpacing: 0.15,
-  },
+    titleGroup: {
+      gap: 7,
+    },
 
-  metaGroup: {
-    gap: 6,
-  },
+    title: {
+      color: theme.text,
+      fontSize: 17,
+      fontWeight: "900",
+      lineHeight: 21,
+      letterSpacing: -0.25,
+    },
 
-  metaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 7,
-  },
+    statusBadge: {
+      alignSelf: "flex-start",
+      borderRadius: radius.full,
+      backgroundColor: theme.accentSoft,
+      paddingHorizontal: 11,
+      paddingVertical: 5,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
 
-  metaIconWrap: {
-    width: 24,
-    height: 24,
-    borderRadius: radius.full,
-    backgroundColor: "rgba(15,122,120,0.08)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
+    statusText: {
+      color: theme.accentDark,
+      fontSize: 11,
+      fontWeight: "900",
+      letterSpacing: 0.15,
+    },
 
-  meta: {
-    flex: 1,
-    color: colors.textMuted,
-    fontSize: 12,
-    fontWeight: "900",
-  },
-});
+    metaGroup: {
+      gap: 6,
+    },
+
+    metaRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 7,
+    },
+
+    metaIconWrap: {
+      width: 24,
+      height: 24,
+      borderRadius: radius.full,
+      backgroundColor: theme.primaryMuted,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+
+    meta: {
+      flex: 1,
+      color: theme.textMuted,
+      fontSize: 12,
+      fontWeight: "900",
+    },
+  });
+};
+
+export const styles = createStyles(colors);
